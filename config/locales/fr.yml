@@ -1,0 +1,39 @@
+fr:
+  hello: "Bonjour monde"
+
+  # Common questionnaire terms
+  assessment: "Évaluation"
+  assessments: "Évaluations"
+  question: "Question"
+  questions: "Questions"
+  section: "Section"
+  sections: "Sections"
+  option: "Option"
+  options: "Options"
+  answer: "Réponse"
+  answers: "Réponses"
+
+  # Question types
+  multiple_choice: "Choix multiple"
+  radio: "Sélection unique"
+  boolean: "Vrai/Faux"
+  date: "Date"
+  range: "Plage"
+  rich_text: "Texte enrichi"
+  file_upload: "Télécharger un fichier"
+
+  # Boolean options
+  "true": "Vrai"
+  "false": "Faux"
+
+  # Common actions
+  create: "Créer"
+  edit: "Modifier"
+  update: "Mettre à jour"
+  delete: "Supprimer"
+  save: "Sauvegarder"
+  cancel: "Annuler"
+
+  # Validation messages
+  required: "Ce champ est obligatoire"
+  at_least_two_options: "Doit avoir au moins 2 options"

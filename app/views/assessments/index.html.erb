@@ -1,0 +1,153 @@
+<% content_for :title, "Assessments" %>
+
+<div class="flex justify-between items-center mb-8">
+  <div>
+    <h1 class="text-3xl font-bold text-gray-900">Assessments</h1>
+    <p class="text-gray-600 mt-2">Create, manage, and preview your assessments</p>
+  </div>
+  <%= link_to new_assessment_path,
+      class: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2" do %>
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+    </svg>
+    <span>New Assessment</span>
+  <% end %>
+</div>
+
+<% if @assessments.any? %>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% @assessments.each do |assessment| %>
+      <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200">
+        <!-- Assessment Header -->
+        <div class="p-6 border-b border-gray-200">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold text-gray-900 truncate">
+                <%= assessment.title %>
+              </h3>
+              <p class="text-gray-600 text-sm mt-1 line-clamp-2">
+                <%= assessment.description.present? ? assessment.description : "No description provided" %>
+              </p>
+            </div>
+            <div class="ml-4 flex-shrink-0">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= assessment.status_color == 'green' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>">
+                <%= assessment.status %>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Assessment Stats -->
+        <div class="p-6 space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-blue-600">
+                <%= assessment.total_sections %>
+              </div>
+              <div class="text-sm text-gray-500">
+                Section<%= assessment.total_sections != 1 ? 's' : '' %>
+              </div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-green-600">
+                <%= assessment.total_questions %>
+              </div>
+              <div class="text-sm text-gray-500">
+                Question<%= assessment.total_questions != 1 ? 's' : '' %>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center pt-2 border-t border-gray-200">
+            <div class="text-sm text-gray-500">
+              Created <%= assessment.formatted_created_at %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Assessment Actions -->
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
+          <div class="flex justify-between items-center">
+            <div class="flex space-x-2">
+              <%= link_to assessment_path(assessment),
+                  class: "text-blue-600 hover:text-blue-800 text-sm font-medium" do %>
+                View
+              <% end %>
+              <%= link_to edit_assessment_path(assessment),
+                  class: "text-green-600 hover:text-green-800 text-sm font-medium" do %>
+                Edit
+              <% end %>
+              <%= link_to preview_assessment_path(assessment),
+                  class: "text-purple-600 hover:text-purple-800 text-sm font-medium" do %>
+                Preview
+              <% end %>
+            </div>
+            <div class="flex items-center space-x-2">
+              <% if assessment.can_be_deleted? %>
+                <%= button_to assessment_path(assessment),
+                    method: :delete,
+                    class: "text-red-600 hover:text-red-800 text-sm font-medium",
+                    data: {
+                      confirm: "Are you sure you want to delete '#{assessment.title}'? This action cannot be undone."
+                    } do %>
+                  Delete
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <!-- Empty State -->
+  <div class="text-center py-12">
+    <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+      <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      </svg>
+    </div>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">No assessments yet</h3>
+    <p class="text-gray-600 mb-6">Get started by creating your first assessment</p>
+    <%= link_to new_assessment_path,
+        class: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-sm font-medium transition-colors inline-flex items-center space-x-2" do %>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+      </svg>
+      <span>Create Assessment</span>
+    <% end %>
+  </div>
+<% end %>
+
+<!-- Quick Stats -->
+<% if @assessments.any? %>
+  <div class="mt-12 bg-white rounded-lg shadow-md p-6">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Statistics</h3>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="text-center">
+        <div class="text-3xl font-bold text-blue-600">
+          <%= @assessments.count %>
+        </div>
+        <div class="text-sm text-gray-500">Total Assessments</div>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl font-bold text-green-600">
+          <%= @assessments.active.count %>
+        </div>
+        <div class="text-sm text-gray-500">Active</div>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl font-bold text-yellow-600">
+          <%= @assessments.inactive.count %>
+        </div>
+        <div class="text-sm text-gray-500">Draft</div>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl font-bold text-purple-600">
+          <%= @assessments.sum(&:total_questions) %>
+        </div>
+        <div class="text-sm text-gray-500">Total Questions</div>
+      </div>
+    </div>
+  </div>
+<% end %>

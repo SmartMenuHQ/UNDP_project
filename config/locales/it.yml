@@ -1,0 +1,39 @@
+it:
+  hello: "Ciao mondo"
+
+  # Common questionnaire terms
+  assessment: "Valutazione"
+  assessments: "Valutazioni"
+  question: "Domanda"
+  questions: "Domande"
+  section: "Sezione"
+  sections: "Sezioni"
+  option: "Opzione"
+  options: "Opzioni"
+  answer: "Risposta"
+  answers: "Risposte"
+
+  # Question types
+  multiple_choice: "Scelta multipla"
+  radio: "Selezione singola"
+  boolean: "Vero/Falso"
+  date: "Data"
+  range: "Intervallo"
+  rich_text: "Testo ricco"
+  file_upload: "Carica file"
+
+  # Boolean options
+  "true": "Vero"
+  "false": "Falso"
+
+  # Common actions
+  create: "Crea"
+  edit: "Modifica"
+  update: "Aggiorna"
+  delete: "Elimina"
+  save: "Salva"
+  cancel: "Annulla"
+
+  # Validation messages
+  required: "Questo campo è obbligatorio"
+  at_least_two_options: "Deve avere almeno 2 opzioni"

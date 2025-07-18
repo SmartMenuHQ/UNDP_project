@@ -1,0 +1,39 @@
+es:
+  hello: "Hola mundo"
+
+  # Common questionnaire terms
+  assessment: "Evaluación"
+  assessments: "Evaluaciones"
+  question: "Pregunta"
+  questions: "Preguntas"
+  section: "Sección"
+  sections: "Secciones"
+  option: "Opción"
+  options: "Opciones"
+  answer: "Respuesta"
+  answers: "Respuestas"
+
+  # Question types
+  multiple_choice: "Opción múltiple"
+  radio: "Selección única"
+  boolean: "Verdadero/Falso"
+  date: "Fecha"
+  range: "Rango"
+  rich_text: "Texto enriquecido"
+  file_upload: "Subir archivo"
+
+  # Boolean options
+  "true": "Verdadero"
+  "false": "Falso"
+
+  # Common actions
+  create: "Crear"
+  edit: "Editar"
+  update: "Actualizar"
+  delete: "Eliminar"
+  save: "Guardar"
+  cancel: "Cancelar"
+
+  # Validation messages
+  required: "Este campo es obligatorio"
+  at_least_two_options: "Debe tener al menos 2 opciones"

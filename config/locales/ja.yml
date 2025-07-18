@@ -1,0 +1,39 @@
+ja:
+  hello: "こんにちは世界"
+
+  # Common questionnaire terms
+  assessment: "評価"
+  assessments: "評価"
+  question: "質問"
+  questions: "質問"
+  section: "セクション"
+  sections: "セクション"
+  option: "選択肢"
+  options: "選択肢"
+  answer: "回答"
+  answers: "回答"
+
+  # Question types
+  multiple_choice: "複数選択"
+  radio: "単一選択"
+  boolean: "真偽値"
+  date: "日付"
+  range: "範囲"
+  rich_text: "リッチテキスト"
+  file_upload: "ファイルアップロード"
+
+  # Boolean options
+  "true": "真"
+  "false": "偽"
+
+  # Common actions
+  create: "作成"
+  edit: "編集"
+  update: "更新"
+  delete: "削除"
+  save: "保存"
+  cancel: "キャンセル"
+
+  # Validation messages
+  required: "この項目は必須です"
+  at_least_two_options: "少なくとも2つの選択肢が必要です"

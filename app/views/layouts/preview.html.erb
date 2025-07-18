@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Assessment Preview" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-gray-50 min-h-screen">
+    <!-- Preview Header -->
+    <div class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center space-x-4">
+            <div class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+              📋 Preview Mode
+            </div>
+            <h1 class="text-lg font-semibold text-gray-900">
+              <%= @assessment.title %>
+            </h1>
+          </div>
+          <div class="flex items-center space-x-3">
+            <%= link_to "Edit", edit_assessment_path(@assessment),
+                class: "text-blue-600 hover:text-blue-800 text-sm font-medium" %>
+            <%= link_to "Back to Assessments", assessments_path,
+                class: "text-gray-600 hover:text-gray-800 text-sm font-medium" %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <%= yield %>
+    </main>
+
+    <!-- Preview Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex items-center justify-between">
+          <p class="text-gray-500 text-sm">
+            This is a preview of how your assessment will appear to respondents.
+          </p>
+          <div class="flex space-x-4">
+            <%= link_to "Edit Assessment", edit_assessment_path(@assessment),
+                class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors" %>
+            <%= link_to "View All Assessments", assessments_path,
+                class: "bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors" %>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
