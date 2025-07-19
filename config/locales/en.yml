@@ -64,5 +64,86 @@ en:
   cancel: "Cancel"
 
   # Validation messages
-  required: "This field is required"
-  at_least_two_options: "Must have at least 2 options"
+  validation_errors:
+    # General validation messages
+    required: "This field is required"
+    at_least_two_options: "Must have at least 2 options"
+
+    # Text validation
+    min_length: "Text must be at least %{count} characters long"
+    max_length: "Text must be no more than %{count} characters long"
+    email_format: "Must be a valid email address"
+    url_format: "Must be a valid URL"
+    pattern_mismatch: "Text does not match required pattern"
+    pattern_config_error: "Invalid pattern configuration"
+
+    # Number validation
+    number_min: "Value must be at least %{min}"
+    number_max: "Value must be no more than %{max}"
+    number_range: "Value must be between %{min} and %{max}"
+    integer_only: "Value must be a whole number"
+
+    # Date validation
+    date_format: "Please enter a valid date"
+    datetime_format: "Please enter a valid date and time"
+    date_after: "Date must be after %{date}"
+    date_before: "Date must be before %{date}"
+    date_within_year: "Date must be within %{year}"
+    future_date: "Date must be in the future"
+    past_date: "Date must be in the past"
+    invalid_date: "Invalid date format"
+    year_range: "Year must be between %{min_year} and %{max_year}"
+    date_range_incomplete: "Both start and end dates are required for date range"
+    date_range_invalid: "End date must be after start date"
+    invalid_date_range: "Invalid date format in date range"
+    range_values_required: "Both minimum and maximum values are required for range"
+    range_invalid_order: "Maximum value must be greater than minimum value"
+
+    # Selection validation
+    min_selections:
+      one: "Must select at least %{count} option"
+      other: "Must select at least %{count} options"
+    max_selections:
+      one: "Can select at most %{count} option"
+      other: "Can select at most %{count} options"
+    single_selection_only: "Only one option can be selected"
+
+    # File validation
+    file_size_exceeded: "File size must not exceed %{size}"
+    file_type_not_allowed: "File type '%{type}' is not allowed"
+    file_extension_not_allowed: "File extension '%{extension}' is not allowed"
+    allowed_file_types: "File type must be one of: %{types}"
+
+    # Question type specific messages
+    radio:
+      single_selection: "Only one option can be selected"
+    multiple_choice:
+      min_one_selection: "At least one option must be selected"
+    boolean:
+      single_selection: "Only one option can be selected"
+    date:
+      required: "Date is required"
+    range:
+      required: "A value is required"
+      must_be_number: "Value must be a number"
+    text:
+      required: "Text is required"
+    file:
+      required: "File is required"
+
+  # Default validation rule messages
+  default_rules:
+    rating_scale: "Rating must be between %{min} and %{max}"
+    slider_range: "Value must be between %{min} and %{max}"
+    positive_number: "Value must be positive"
+    current_year_range: "Date must be within %{year}"
+    valid_date_format: "Please enter a valid date"
+    valid_datetime_format: "Please enter a valid date and time"
+    reasonable_year_range: "Year must be between %{min_year} and %{max_year}"
+    max_file_size: "File size must not exceed %{size}"
+    common_file_types: "File type must be one of: %{types}"
+    email_validation: "Must be a valid email address"
+    url_validation: "Must be a valid URL"
+    short_text_limit: "Text must be %{count} characters or less"
+    phone_min_length: "Phone number must be at least %{count} digits"
+    password_min_length: "Password must be at least %{count} characters long"

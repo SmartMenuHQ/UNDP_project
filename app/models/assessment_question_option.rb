@@ -28,6 +28,9 @@ class AssessmentQuestionOption < ApplicationRecord
   belongs_to :assessment
   belongs_to :assessment_question
 
+  has_many :selected_options, dependent: :destroy
+  has_many :assessment_question_responses, through: :selected_options
+
   translates :text, backend: :jsonb
 
   # Validations

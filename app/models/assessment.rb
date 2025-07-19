@@ -13,6 +13,7 @@ class Assessment < ApplicationRecord
   has_many :assessment_sections, dependent: :destroy
   has_many :assessment_questions, dependent: :destroy
   has_many :assessment_question_options, dependent: :destroy
+  has_many :assessment_question_responses, dependent: :destroy
 
   # Nested attributes
   accepts_nested_attributes_for :assessment_sections, allow_destroy: true

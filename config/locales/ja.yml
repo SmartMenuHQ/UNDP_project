@@ -35,5 +35,62 @@ ja:
   cancel: "キャンセル"
 
   # Validation messages
-  required: "この項目は必須です"
-  at_least_two_options: "少なくとも2つの選択肢が必要です"
+  validation_errors:
+    # General validation messages
+    required: "この項目は必須です"
+    at_least_two_options: "少なくとも2つの選択肢が必要です"
+
+    # Text validation
+    min_length: "テキストは%{count}文字以上である必要があります"
+    max_length: "テキストは%{count}文字以下である必要があります"
+    email_format: "有効なメールアドレスを入力してください"
+    url_format: "有効なURLを入力してください"
+    pattern_mismatch: "テキストが必要なパターンと一致しません"
+    pattern_config_error: "無効なパターン設定"
+
+    # Number validation
+    number_min: "値は%{min}以上である必要があります"
+    number_max: "値は%{max}以下である必要があります"
+    number_range: "値は%{min}から%{max}の間である必要があります"
+    integer_only: "値は整数である必要があります"
+
+    # Date validation
+    date_format: "有効な日付を入力してください"
+    datetime_format: "有効な日付と時刻を入力してください"
+    date_after: "日付は%{date}より後である必要があります"
+    date_before: "日付は%{date}より前である必要があります"
+    date_within_year: "日付は%{year}年内である必要があります"
+    future_date: "日付は未来である必要があります"
+    past_date: "日付は過去である必要があります"
+    invalid_date: "無効な日付形式"
+    year_range: "年は%{min_year}年から%{max_year}年の間である必要があります"
+
+    # Selection validation
+    min_selections:
+      other: "少なくとも%{count}個のオプションを選択してください"
+    max_selections:
+      other: "最大%{count}個のオプションを選択できます"
+    single_selection_only: "1つのオプションのみ選択できます"
+
+    # File validation
+    file_size_exceeded: "ファイルサイズは%{size}を超えてはいけません"
+    file_type_not_allowed: "ファイルタイプ'%{type}'は許可されていません"
+    file_extension_not_allowed: "拡張子'%{extension}'は許可されていません"
+    allowed_file_types: "ファイルタイプは次のいずれかである必要があります：%{types}"
+
+  # Default validation rule messages
+  default_rules:
+    rating_scale: "評価は%{min}から%{max}の間である必要があります"
+    slider_range: "値は%{min}から%{max}の間である必要があります"
+    positive_number: "値は正の数である必要があります"
+    current_year_range: "日付は%{year}年内である必要があります"
+    valid_date_format: "有効な日付を入力してください"
+    valid_datetime_format: "有効な日付と時刻を入力してください"
+    reasonable_year_range: "年は%{min_year}年から%{max_year}年の間である必要があります"
+    max_file_size: "ファイルサイズは%{size}を超えてはいけません"
+    common_file_types: "ファイルタイプは次のいずれかである必要があります：%{types}"
+    email_validation: "有効なメールアドレスを入力してください"
+    url_validation: "有効なURLを入力してください"
+    short_text_limit: "テキストは%{count}文字以下である必要があります"
+    phone_min_length: "電話番号は%{count}桁以上である必要があります"
+    password_min_length: "パスワードは%{count}文字以上である必要があります"

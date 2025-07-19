@@ -192,6 +192,8 @@ class AssessmentsController < ApplicationController
 
   def set_assessment
     @assessment = Assessment.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    redirect_to assessments_path, alert: 'Assessment not found. It may have been deleted.'
   end
 
   def assessment_params
@@ -202,8 +204,8 @@ class AssessmentsController < ApplicationController
     )
   end
 
-    def question_params
-    params.require(:question).permit(:text, :is_required, :order, :meta_data, :allowed_data_types, :max_file_size, allowed_data_types: [])
+  def question_params
+    params.require(:question).permit(:text, :sub_type, :is_required, :order, :meta_data, :allowed_data_types, :max_file_size, :upload_mode, allowed_data_types: [])
   end
 
   def option_params

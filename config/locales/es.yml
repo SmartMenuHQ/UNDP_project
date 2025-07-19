@@ -35,5 +35,64 @@ es:
   cancel: "Cancelar"
 
   # Validation messages
-  required: "Este campo es obligatorio"
-  at_least_two_options: "Debe tener al menos 2 opciones"
+  validation_errors:
+    # General validation messages
+    required: "Este campo es obligatorio"
+    at_least_two_options: "Debe tener al menos 2 opciones"
+
+    # Text validation
+    min_length: "El texto debe tener al menos %{count} caracteres"
+    max_length: "El texto no debe exceder %{count} caracteres"
+    email_format: "Debe ser una dirección de correo válida"
+    url_format: "Debe ser una URL válida"
+    pattern_mismatch: "El texto no coincide con el patrón requerido"
+    pattern_config_error: "Configuración de patrón inválida"
+
+    # Number validation
+    number_min: "El valor debe ser al menos %{min}"
+    number_max: "El valor no debe exceder %{max}"
+    number_range: "El valor debe estar entre %{min} y %{max}"
+    integer_only: "El valor debe ser un número entero"
+
+    # Date validation
+    date_format: "Por favor ingrese una fecha válida"
+    datetime_format: "Por favor ingrese una fecha y hora válidas"
+    date_after: "La fecha debe ser posterior al %{date}"
+    date_before: "La fecha debe ser anterior al %{date}"
+    date_within_year: "La fecha debe estar dentro del año %{year}"
+    future_date: "La fecha debe estar en el futuro"
+    past_date: "La fecha debe estar en el pasado"
+    invalid_date: "Formato de fecha inválido"
+    year_range: "El año debe estar entre %{min_year} y %{max_year}"
+
+    # Selection validation
+    min_selections:
+      one: "Debe seleccionar al menos %{count} opción"
+      other: "Debe seleccionar al menos %{count} opciones"
+    max_selections:
+      one: "Puede seleccionar como máximo %{count} opción"
+      other: "Puede seleccionar como máximo %{count} opciones"
+    single_selection_only: "Solo se puede seleccionar una opción"
+
+    # File validation
+    file_size_exceeded: "El tamaño del archivo no debe exceder %{size}"
+    file_type_not_allowed: "El tipo de archivo '%{type}' no está permitido"
+    file_extension_not_allowed: "La extensión '%{extension}' no está permitida"
+    allowed_file_types: "El tipo de archivo debe ser uno de: %{types}"
+
+  # Default validation rule messages
+  default_rules:
+    rating_scale: "La calificación debe estar entre %{min} y %{max}"
+    slider_range: "El valor debe estar entre %{min} y %{max}"
+    positive_number: "El valor debe ser positivo"
+    current_year_range: "La fecha debe estar dentro del año %{year}"
+    valid_date_format: "Por favor ingrese una fecha válida"
+    valid_datetime_format: "Por favor ingrese una fecha y hora válidas"
+    reasonable_year_range: "El año debe estar entre %{min_year} y %{max_year}"
+    max_file_size: "El tamaño del archivo no debe exceder %{size}"
+    common_file_types: "El tipo de archivo debe ser uno de: %{types}"
+    email_validation: "Debe ser una dirección de correo válida"
+    url_validation: "Debe ser una URL válida"
+    short_text_limit: "El texto debe tener %{count} caracteres o menos"
+    phone_min_length: "El número de teléfono debe tener al menos %{count} dígitos"
+    password_min_length: "La contraseña debe tener al menos %{count} caracteres"

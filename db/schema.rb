@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_14_160119) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_19_122822) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -55,6 +55,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_14_160119) do
     t.index ["assessment_question_id"], name: "index_assessment_question_options_on_assessment_question_id"
   end
 
+  create_table "assessment_question_responses", force: :cascade do |t|
+    t.bigint "assessment_question_id", null: false
+    t.bigint "assessment_id", null: false
+    t.jsonb "value", default: {}
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assessment_id"], name: "index_assessment_question_responses_on_assessment_id"
+    t.index ["assessment_question_id"], name: "index_assessment_question_responses_on_assessment_question_id"
+  end
+
   create_table "assessment_questions", force: :cascade do |t|
     t.string "type"
     t.boolean "is_required", default: false
@@ -68,6 +79,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_14_160119) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "active", default: true
+    t.string "sub_type"
     t.index ["assessment_id"], name: "index_assessment_questions_on_assessment_id"
     t.index ["assessment_section_id"], name: "index_assessment_questions_on_assessment_section_id"
   end
@@ -115,9 +127,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_14_160119) do
     t.index ["translatable_id", "translatable_type", "locale", "key"], name: "index_mobility_text_translations_on_keys", unique: true
   end
 
+  create_table "selected_options", force: :cascade do |t|
+    t.bigint "assessment_question_response_id", null: false
+    t.bigint "assessment_question_option_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assessment_question_option_id"], name: "index_selected_options_on_assessment_question_option_id"
+    t.index ["assessment_question_response_id", "assessment_question_option_id"], name: "index_selected_options_unique", unique: true
+    t.index ["assessment_question_response_id"], name: "index_selected_options_on_assessment_question_response_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "assessment_question_options", "assessment_questions"
   add_foreign_key "assessment_question_options", "assessments"
+  add_foreign_key "assessment_question_responses", "assessment_questions"
+  add_foreign_key "assessment_question_responses", "assessments"
   add_foreign_key "assessment_sections", "assessments"
+  add_foreign_key "selected_options", "assessment_question_options"
+  add_foreign_key "selected_options", "assessment_question_responses"
 end
