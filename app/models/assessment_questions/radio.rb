@@ -28,6 +28,9 @@ module AssessmentQuestions
 
     accepts_nested_attributes_for :option, allow_destroy: true
 
+    # Explicit attribute declaration for enum
+    attribute :sub_type, :string
+
     # Sub-types for radio button questions
     enum :sub_type, {
       radio_buttons: "radio_buttons",

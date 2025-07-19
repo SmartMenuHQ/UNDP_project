@@ -2,11 +2,11 @@
 #
 # Table name: selected_options
 #
-#  id                               :bigint           not null, primary key
-#  created_at                       :datetime         not null
-#  updated_at                       :datetime         not null
-#  assessment_question_response_id  :bigint           not null
-#  assessment_question_option_id    :bigint           not null
+#  id                              :bigint           not null, primary key
+#  created_at                      :datetime         not null
+#  updated_at                      :datetime         not null
+#  assessment_question_option_id   :bigint           not null
+#  assessment_question_response_id :bigint           not null
 #
 # Indexes
 #

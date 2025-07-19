@@ -5,6 +5,9 @@ module AssessmentQuestions
 
     accepts_nested_attributes_for :option, allow_destroy: true
 
+    # Explicit attribute declaration for enum
+    attribute :sub_type, :string
+
     # Sub-types for multiple choice questions
     enum :sub_type, {
       checkboxes: "checkboxes",

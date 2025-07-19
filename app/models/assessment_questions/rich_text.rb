@@ -24,6 +24,9 @@
 # -*- SkipSchemaAnnotations
 module AssessmentQuestions
   class RichText < AssessmentQuestion
+    # Explicit attribute declaration for enum
+    attribute :sub_type, :string
+
     # Sub-types for text questions
     enum :sub_type, {
       short_text: "short_text",

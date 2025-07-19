@@ -1,6 +1,9 @@
 # -*- SkipSchemaAnnotations
 module AssessmentQuestions
   class DateType < AssessmentQuestion
+    # Explicit attribute declaration for enum
+    attribute :sub_type, :string
+
     # Sub-types for date questions
     enum :sub_type, {
       date: "date",

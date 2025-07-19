@@ -3,17 +3,17 @@
 # Table name: assessment_question_responses
 #
 #  id                     :bigint           not null, primary key
-#  value                  :jsonb            default({})
-#  metadata               :jsonb            default({})
+#  metadata               :jsonb
+#  value                  :jsonb
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
-#  assessment_question_id :bigint           not null
 #  assessment_id          :bigint           not null
+#  assessment_question_id :bigint           not null
 #
 # Indexes
 #
-#  index_assessment_question_responses_on_assessment_id          (assessment_id)
-#  index_assessment_question_responses_on_assessment_question_id (assessment_question_id)
+#  index_assessment_question_responses_on_assessment_id           (assessment_id)
+#  index_assessment_question_responses_on_assessment_question_id  (assessment_question_id)
 #
 # Foreign Keys
 #

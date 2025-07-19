@@ -161,7 +161,9 @@ class AssessmentQuestion < ApplicationRecord
     validation_rule_set.present?
   end
 
-  def add_validation_rule(rule_name, rule_config)
+  def add_validation_rule(rule_name, rule_config, custom: false)
+    # The custom parameter is kept for backward compatibility but ignored
+    # since we only store custom rules now (no more default_validation_rule_set in meta_data)
     self.custom_rule_set = (custom_rule_set || {}).merge(rule_name.to_s => rule_config)
   end
 

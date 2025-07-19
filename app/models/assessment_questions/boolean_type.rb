@@ -5,6 +5,9 @@ module AssessmentQuestions
 
     accepts_nested_attributes_for :option, allow_destroy: true
 
+    # Explicit attribute declaration for enum
+    attribute :sub_type, :string
+
     # Default validation rules for BooleanType questions
     def default_validation_rule_set_for_type
       {

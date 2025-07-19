@@ -24,6 +24,9 @@
 # -*- SkipSchemaAnnotations
 module AssessmentQuestions
   class RangeType < AssessmentQuestion
+    # Explicit attribute declaration for enum
+    attribute :sub_type, :string
+
     # Sub-types for range/numeric questions
     enum :sub_type, {
       slider: "slider",
