@@ -58,7 +58,7 @@ group :development do
   gem "web-console"
 end
 
-gem "annotaterb", "~> 4.16"
+gem "annotaterb", "~> 4.17"
 
 gem "mobility", "~> 1.3"
 
