@@ -43,15 +43,15 @@ class Assessment < ApplicationRecord
   end
 
   def status
-    active? ? 'Active' : 'Draft'
+    active? ? "Active" : "Draft"
   end
 
   def status_color
-    active? ? 'green' : 'yellow'
+    active? ? "green" : "yellow"
   end
 
   def formatted_created_at
-    created_at.strftime('%B %d, %Y')
+    created_at.strftime("%B %d, %Y")
   end
 
   def can_be_deleted?

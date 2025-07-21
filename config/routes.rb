@@ -27,8 +27,8 @@ Rails.application.routes.draw do
     end
 
     # Nested section routes for more complex operations
-    resources :assessment_sections, only: [:create, :update, :destroy], path: 'sections' do
-      resources :assessment_questions, only: [:create, :update, :destroy], path: 'questions'
+    resources :assessment_sections, only: [:create, :update, :destroy], path: "sections" do
+      resources :assessment_questions, only: [:create, :update, :destroy], path: "questions"
     end
   end
 
@@ -41,4 +41,9 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  # SPA routes - catch-all for client-side routing
+  # This should be last to avoid interfering with other routes
+  get "/app", to: "app#index"
+  get "/app/*path", to: "app#index"
 end
