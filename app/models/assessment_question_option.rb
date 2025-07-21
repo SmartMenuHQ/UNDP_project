@@ -53,7 +53,7 @@ class AssessmentQuestionOption < ApplicationRecord
   def queue_translation_job
     return unless Rails.application.config.auto_translation_enabled
 
-    source_locale = default_locale || 'en'
+    source_locale = default_locale || "en"
 
     # Skip if the source locale is not available
     return unless Rails.application.config.i18n.available_locales.include?(source_locale.to_sym)

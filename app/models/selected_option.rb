@@ -25,22 +25,22 @@ class SelectedOption < ApplicationRecord
 
   # Validations
   validates :assessment_question_response_id, uniqueness: {
-    scope: :assessment_question_option_id,
-    message: "Option can only be selected once per response"
-  }
+                                                scope: :assessment_question_option_id,
+                                                message: "Option can only be selected once per response",
+                                              }
 
   validate :validate_option_belongs_to_question
   validate :validate_selection_constraints
 
   # Scopes
   scope :for_question, ->(question_id) {
-    joins(:assessment_question_option)
-      .where(assessment_question_options: { assessment_question_id: question_id })
-  }
+          joins(:assessment_question_option)
+            .where(assessment_question_options: { assessment_question_id: question_id })
+        }
 
   scope :for_response, ->(response_id) {
-    where(assessment_question_response_id: response_id)
-  }
+          where(assessment_question_response_id: response_id)
+        }
 
   private
 
@@ -59,11 +59,11 @@ class SelectedOption < ApplicationRecord
     existing_selections = assessment_question_response.selected_options.where.not(id: id)
 
     case question.type
-    when 'AssessmentQuestions::Radio', 'AssessmentQuestions::BooleanType'
+    when "AssessmentQuestions::Radio", "AssessmentQuestions::BooleanType"
       if existing_selections.exists?
         errors.add(:base, "Only one option can be selected for #{question.question_type_name.downcase} questions")
       end
-    when 'AssessmentQuestions::MultipleChoice'
+    when "AssessmentQuestions::MultipleChoice"
       # Multiple selections allowed, no additional validation needed
     end
   end
