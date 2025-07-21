@@ -15,7 +15,7 @@ Rails.application.routes.draw do
       end
 
       # Business user routes (read-only access)
-      resources :assessments, only: [:index, :show] do
+      resources :assessments, only: [ :index, :show ] do
         member do
           get :sections
           get :questions
@@ -23,13 +23,13 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :users, only: [:show, :update]
-      resources :countries, only: [:index, :show]
+      resources :users, only: [ :show, :update ]
+      resources :countries, only: [ :index, :show ]
 
       # Business (non-admin) namespace for response sessions and responses
       namespace :business do
         resources :assessments, only: [] do
-          resources :response_sessions, path: "response-sessions", only: [:index, :show, :create, :update] do
+          resources :response_sessions, path: "response-sessions", only: [ :index, :show, :create, :update ] do
             member do
               patch :start
               get "sections/:section_id", to: "response_sessions#show_section", as: :show_section
@@ -131,8 +131,8 @@ Rails.application.routes.draw do
     end
 
     # Nested section routes for more complex operations
-    resources :assessment_sections, only: [:create, :update, :destroy], path: "sections" do
-      resources :assessment_questions, only: [:create, :update, :destroy], path: "questions"
+    resources :assessment_sections, only: [ :create, :update, :destroy ], path: "sections" do
+      resources :assessment_questions, only: [ :create, :update, :destroy ], path: "questions"
     end
 
     # Question options API endpoint
@@ -190,9 +190,9 @@ Rails.application.routes.draw do
   # API routes for AJAX functionality
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
-      resources :assessments, only: [:show, :update] do
-        resources :sections, only: [:create, :update, :destroy]
-        resources :questions, only: [:create, :update, :destroy]
+      resources :assessments, only: [ :show, :update ] do
+        resources :sections, only: [ :create, :update, :destroy ]
+        resources :questions, only: [ :create, :update, :destroy ]
       end
     end
   end
