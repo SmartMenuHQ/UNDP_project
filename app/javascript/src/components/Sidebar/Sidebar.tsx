@@ -27,7 +27,7 @@ const SidebarComponent = () => {
 
 				<div className="mt-auto">
 					<SidebarItemGroup className="mt-auto">
-						<SidebarItem href="/logout" icon={LogOut}>
+						<SidebarItem href="/app/login" icon={LogOut}>
 							Sign Out
 						</SidebarItem>
 					</SidebarItemGroup>
