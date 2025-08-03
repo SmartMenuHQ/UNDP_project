@@ -5,6 +5,7 @@ import { createBrowserRouter, RouteObject, RouterProvider } from "react-router";
 import "flowbite";
 import { ThemeProvider, createTheme } from "flowbite-react";
 import { routePath as notFoundRoute } from "@/src/pages/404";
+import ErrorBoundary from "@/src/components/ErrorBoundary";
 
 const rootElement = document.getElementById("react-app");
 
@@ -37,7 +38,9 @@ if (rootElement) {
 
 	root.render(
 		<ThemeProvider theme={theme}>
-			<RouterProvider router={router} />
+			<ErrorBoundary>
+				<RouterProvider router={router} />
+			</ErrorBoundary>
 		</ThemeProvider>
 	);
 
