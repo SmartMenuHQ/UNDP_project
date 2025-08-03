@@ -1,7 +1,12 @@
 import { Sidebar, SidebarItem, SidebarItemGroup, SidebarItems } from "flowbite-react";
 import { LayoutDashboard, Gauge, ClipboardMinus, LogOut } from "lucide-react";
+import Listbox from "../Listbox/Listbox";
 
 const SidebarComponent = () => {
+	const workspaces = [
+		{ value: "ws1", label: "Workspace name" },
+		{ value: "ws2", label: "Another workspace" },
+	];
 	return (
 		<Sidebar
 			className="h-screen hidden md:block bg-transparent"
@@ -27,9 +32,12 @@ const SidebarComponent = () => {
 
 				<div className="mt-auto">
 					<SidebarItemGroup className="mt-auto">
-						<SidebarItem href="/app/login" icon={LogOut}>
-							Sign Out
-						</SidebarItem>
+						<Listbox
+							options={workspaces}
+							defaultValue={{ value: "ws1", label: "Iffy Ogo" }}
+							onChange={(value) => console.log("Selected:", value)}
+						/>
+						<p className="text-[11px]">&copy; Powered by UNDP</p>
 					</SidebarItemGroup>
 				</div>
 			</SidebarItems>
