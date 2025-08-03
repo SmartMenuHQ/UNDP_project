@@ -12,9 +12,9 @@ const NotFoundPage = () => {
 						src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/404/404-computer.svg"
 						alt="404 Not Found"
 					></img>
-					<h1 className="mb-4 text-7xl font-display tracking-tight font-extrabold lg:text-[10rem] text-primary-600">
+					{/* <h1 className="mb-4 text-7xl font-display tracking-tight font-extrabold lg:text-[10rem] text-primary-600">
 						404
-					</h1>
+					</h1> */}
 					<p className="mb-4 text-3xl font-display tracking-tight font-bold text-gray-900 md:text-4xl dark:text-white">
 						Something's missing.
 					</p>
