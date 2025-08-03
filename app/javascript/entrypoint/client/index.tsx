@@ -1,12 +1,14 @@
 import { createRoot } from "react-dom/client";
 import { loadRoutes } from "@/src/utils/loadPaths";
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, RouteObject, RouterProvider } from "react-router";
 
 import "flowbite";
 import { ThemeProvider, createTheme } from "flowbite-react";
+import { routePath as notFoundRoute } from "@/src/pages/404";
 
 const rootElement = document.getElementById("react-app");
-const router = createBrowserRouter(loadRoutes());
+
+const router = createBrowserRouter([...loadRoutes(), notFoundRoute]);
 
 console.log("🚀 Loaded routes:", loadRoutes());
 

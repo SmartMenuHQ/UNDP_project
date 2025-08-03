@@ -1,4 +1,4 @@
-import { RouteObject } from "react-router";
+import { Link, RouteObject } from "react-router";
 
 function Register() {
 	return (
@@ -97,12 +97,12 @@ function Register() {
 							</button>
 							<p className="text-sm font-light text-gray-500 dark:text-gray-400">
 								Already have an account?{" "}
-								<a
-									href="/app/login"
+								<Link
+									to="/app/login"
 									className="font-medium text-primary-600 hover:underline dark:text-primary-500"
 								>
 									Login here
-								</a>
+								</Link>
 							</p>
 						</form>
 					</div>

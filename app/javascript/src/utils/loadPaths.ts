@@ -8,7 +8,7 @@ export function loadRoutes(): RouteObject[] {
 	const routes: RouteObject[] = [];
 
 	Object.values(modules).forEach((mod: any) => {
-		if (mod.routePath) {
+		if (mod.routePath && !mod.routePath.skip) {
 			routes.push(mod.routePath);
 		}
 	});
