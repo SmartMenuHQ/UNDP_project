@@ -64,13 +64,13 @@ const AssessmentCard = ({
 			<footer className="flex items-center justify-between">
 				<ButtonGroup className="shadow-none w-full">
 					<Button color="alternative" onClick={handleEdit}>
-						<Pencil />
+						<Pencil size={16} />
 					</Button>
 					<Button color="alternative" className="hover:text-blue-600" onClick={handleView}>
-						<Eye />
+						<Eye size={16} />
 					</Button>
 					<Button color="alternative" className="hover:text-red-600" onClick={handleDelete}>
-						<Trash />
+						<Trash size={16} />
 					</Button>
 				</ButtonGroup>
 			</footer>

@@ -7,6 +7,11 @@ const NotFoundPage = () => {
 		<section className="h-screen justify-center flex items-center">
 			<div className="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
 				<div className="mx-auto max-w-screen-sm text-center">
+					<img
+						className="mb-4 mx-auto"
+						src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/404/404-computer.svg"
+						alt="404 Not Found"
+					></img>
 					<h1 className="mb-4 text-7xl font-display tracking-tight font-extrabold lg:text-[10rem] text-primary-600">
 						404
 					</h1>
