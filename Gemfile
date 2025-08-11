@@ -88,7 +88,7 @@ gem "mobility", "~> 1.3"
 
 # Translation APIs
 gem "google-cloud-translate", "~> 3.2", ">= 3.2.2"
-gem "deepl-rb", "~> 2.5"
+gem "deepl-rb", "~> 3.2"
 gem "vite_rails"
 gem "active_hash"
 gem "aasm"
