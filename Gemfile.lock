@@ -109,7 +109,7 @@ GEM
     debug (1.11.0)
       irb (~> 1.10)
       reline (>= 0.3.8)
-    deepl-rb (2.5.3)
+    deepl-rb (3.2.0)
     diff-lcs (1.6.2)
     dotenv (3.1.8)
     drb (2.2.3)
@@ -580,7 +580,7 @@ DEPENDENCIES
   brakeman
   database_cleaner-active_record (~> 2.1)
   debug
-  deepl-rb (~> 2.5)
+  deepl-rb (~> 3.2)
   factory_bot_rails (~> 6.2)
   faker (~> 3.2)
   google-cloud-translate (~> 3.2, >= 3.2.2)
