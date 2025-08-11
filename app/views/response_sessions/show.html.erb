@@ -1,0 +1,338 @@
+<div class="bg-white shadow rounded-lg">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Response Session Details</h1>
+        <p class="text-sm text-gray-600">
+          <%= @session.respondent_name %> • <%= @assessment.title %>
+        </p>
+      </div>
+      <div class="flex space-x-3">
+        <%= link_to "Back to Sessions", assessment_response_sessions_path(@assessment),
+            class: "bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded" %>
+        <%= link_to "Edit", edit_assessment_response_session_path(@assessment, @session),
+            class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session Status and Metrics -->
+  <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <!-- Status Card -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <div class="flex items-center">
+          <div class="flex-1">
+            <h3 class="text-sm font-medium text-gray-500">Status</h3>
+            <div class="mt-1">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                         <%= state_badge_class(@session.state) %>">
+                <% if @session.state == 'under_review' %>
+                  <i class="fas fa-spinner fa-spin mr-2"></i>
+                <% end %>
+                <%= @session.state.humanize %>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Card -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h3 class="text-sm font-medium text-gray-500">Completion</h3>
+        <div class="mt-2">
+          <div class="flex items-center">
+            <div class="flex-1 mr-2">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="<%= progress_bar_color(@session.completion_percentage) %> h-2 rounded-full"
+                     style="width: <%= @session.completion_percentage %>%"></div>
+              </div>
+            </div>
+            <span class="text-sm font-medium text-gray-900">
+              <%= @session.completion_percentage.round(1) %>%
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Score Card -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h3 class="text-sm font-medium text-gray-500">Score</h3>
+        <div class="mt-1">
+          <% if @session.marked? %>
+            <div class="text-2xl font-bold text-gray-900">
+              <%= @session.total_score.to_i %>/<%= @session.max_possible_score.to_i %>
+            </div>
+            <div class="text-sm text-gray-500">
+              <%= @session.score_percentage.round(1) %>%
+              <span class="font-medium text-<%= @session.passed? ? 'green' : 'red' %>-600">
+                (<%= @session.grade %>)
+              </span>
+            </div>
+          <% else %>
+            <div class="text-lg text-gray-400">Not marked yet</div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Duration Card -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h3 class="text-sm font-medium text-gray-500">Duration</h3>
+        <div class="mt-1">
+          <div class="text-2xl font-bold text-gray-900">
+            <%= @session.duration_formatted %>
+          </div>
+          <% if @session.started_at %>
+            <div class="text-sm text-gray-500">
+              Started <%= @session.started_at.strftime("%b %d, %Y %I:%M %p") %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session Information -->
+  <div class="px-6 py-4 border-b border-gray-200">
+    <h2 class="text-lg font-medium text-gray-900 mb-4">Session Information</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <dl class="space-y-3">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Respondent Name</dt>
+            <dd class="text-sm text-gray-900"><%= @session.respondent_name %></dd>
+          </div>
+          <% if @session.respondent_email.present? %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Email</dt>
+              <dd class="text-sm text-gray-900"><%= @session.respondent_email %></dd>
+            </div>
+          <% end %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Created</dt>
+            <dd class="text-sm text-gray-900"><%= @session.created_at.strftime("%B %d, %Y at %I:%M %p") %></dd>
+          </div>
+        </dl>
+      </div>
+      <div>
+        <dl class="space-y-3">
+          <% if @session.completed_at %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Completed</dt>
+              <dd class="text-sm text-gray-900"><%= @session.completed_at.strftime("%B %d, %Y at %I:%M %p") %></dd>
+            </div>
+          <% end %>
+          <% if @session.submitted_at %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Submitted</dt>
+              <dd class="text-sm text-gray-900"><%= @session.submitted_at.strftime("%B %d, %Y at %I:%M %p") %></dd>
+            </div>
+          <% end %>
+          <% if @session.marked_at %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Marked</dt>
+              <dd class="text-sm text-gray-900"><%= @session.marked_at.strftime("%B %d, %Y at %I:%M %p") %></dd>
+            </div>
+          <% end %>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="px-6 py-4 border-b border-gray-200">
+    <h2 class="text-lg font-medium text-gray-900 mb-4">Actions</h2>
+    <div class="flex flex-wrap gap-3">
+      <% if @session.may_start? %>
+        <%= link_to "Start Session", start_assessment_response_session_path(@assessment, @session),
+            method: :patch,
+            class: "bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" %>
+      <% end %>
+
+      <% if @session.may_submit? %>
+        <%= link_to "Submit Session", submit_assessment_response_session_path(@assessment, @session),
+            method: :patch,
+            class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded",
+            confirm: "Are you sure you want to submit this session?" %>
+      <% end %>
+
+      <% if @session.can_be_marked? %>
+        <button id="mark-session-btn"
+                class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+          <i class="fas fa-check-circle mr-2"></i>
+          Mark Session (Background)
+        </button>
+      <% end %>
+
+      <% if @session.may_publish_results? %>
+        <%= link_to "Publish Results", publish_assessment_response_session_path(@assessment, @session),
+            method: :patch,
+            class: "bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded",
+            confirm: "Are you sure you want to publish the results?" %>
+      <% end %>
+
+      <% if @session.may_cancel? %>
+        <%= link_to "Cancel Session", cancel_assessment_response_session_path(@assessment, @session),
+            method: :patch,
+            class: "bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded",
+            confirm: "Are you sure you want to cancel this session?" %>
+      <% end %>
+
+      <% if @session.may_reset? %>
+        <%= link_to "Reset Session", reset_assessment_response_session_path(@assessment, @session),
+            method: :patch,
+            class: "bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded",
+            confirm: "This will reset all responses and start over. Are you sure?" %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Feedback (if marked) -->
+  <% if @session.marked? && @session.feedback.present? %>
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">Feedback</h2>
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <p class="text-blue-900"><%= simple_format(@session.feedback) %></p>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Responses -->
+  <div class="px-6 py-4">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-medium text-gray-900">Question Responses</h2>
+      <span class="text-sm text-gray-500">
+        <%= @responses.count %> responses
+      </span>
+    </div>
+
+    <% if @responses.any? %>
+      <div class="space-y-6">
+        <% @responses.each_with_index do |response, index| %>
+          <div class="bg-gray-50 rounded-lg p-4">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <h3 class="text-sm font-medium text-gray-900 mb-2">
+                  Question <%= index + 1 %>: <%= truncate(strip_tags(response.assessment_question.text), length: 100) %>
+                </h3>
+
+                <div class="text-sm text-gray-700 mb-3">
+                  <strong>Response:</strong>
+                  <span class="<%= response.has_value? ? 'text-gray-900' : 'text-gray-400 italic' %>">
+                    <%= response.has_value? ? response.display_value : 'No response' %>
+                  </span>
+                </div>
+
+                <% if @session.marked? && @scores.present? %>
+                  <% score = @scores.find { |s| s.assessment_question_response_id == response.id } %>
+                  <% if score %>
+                    <div class="flex items-center space-x-4 text-sm">
+                      <span class="text-green-600 font-medium">
+                        Score: <%= score.score_earned %> / <%= score.max_possible_score %>
+                        (<%= score.percentage_score.round(1) %>%)
+                      </span>
+                      <% if score.feedback.present? %>
+                        <span class="text-blue-600">
+                          <i class="fas fa-comment mr-1"></i>
+                          <%= truncate(score.feedback, length: 50) %>
+                        </span>
+                      <% end %>
+                    </div>
+                  <% end %>
+                <% end %>
+              </div>
+
+              <div class="ml-4">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                           <%= response.has_value? ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
+                  <%= response.has_value? ? 'Answered' : 'Unanswered' %>
+                </span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-8">
+        <i class="fas fa-question-circle text-gray-400 text-4xl mb-4"></i>
+        <p class="text-gray-500">No responses recorded yet.</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Background Job Status Modal -->
+<div id="job-status-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="mt-3 text-center">
+      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+        <i class="fas fa-cog fa-spin text-green-600 text-xl"></i>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mt-2">Marking in Progress</h3>
+      <div class="mt-2 px-7 py-3">
+        <p class="text-sm text-gray-500">
+          The session has been queued for background marking. You will be notified when it's complete.
+        </p>
+      </div>
+      <div class="items-center px-4 py-3">
+        <button id="close-modal" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-700">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const markBtn = document.getElementById('mark-session-btn');
+  const modal = document.getElementById('job-status-modal');
+  const closeModalBtn = document.getElementById('close-modal');
+
+  if (markBtn) {
+    markBtn.addEventListener('click', function() {
+      if (confirm('This will queue the session for background marking. Continue?')) {
+        fetch('<%= mark_assessment_response_session_path(@assessment, @session) %>', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+          }
+        })
+        .then(response => {
+          if (response.ok) {
+            showJobStatusModal();
+            // Refresh page after 3 seconds to show updated status
+            setTimeout(() => window.location.reload(), 3000);
+          } else {
+            alert('Failed to queue session for marking.');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Failed to queue session for marking.');
+        });
+      }
+    });
+  }
+
+  function showJobStatusModal() {
+    modal.classList.remove('hidden');
+  }
+
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', function() {
+      modal.classList.add('hidden');
+    });
+  }
+
+  // Close modal when clicking outside
+  if (modal) {
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+      }
+    });
+  }
+});
+</script>

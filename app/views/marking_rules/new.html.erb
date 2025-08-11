@@ -1,0 +1,495 @@
+<div class="bg-white shadow rounded-lg">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">New Marking Rule</h1>
+        <p class="text-sm text-gray-600">
+          Create a marking rule for "<%= @marking_scheme.name %>" in <%= @assessment.title %>
+        </p>
+      </div>
+      <div class="flex space-x-3">
+        <%= link_to "Cancel", assessment_marking_scheme_marking_rules_path(@assessment, @marking_scheme),
+            class: "bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="px-6 py-6">
+    <%= form_with model: @marking_rule, url: assessment_marking_scheme_marking_rules_path(@assessment, @marking_scheme), local: true, class: "space-y-6" do |form| %>
+      <% if @marking_rule.errors.any? %>
+        <div class="bg-red-50 border border-red-200 rounded-md p-4">
+          <div class="flex">
+            <i class="fas fa-exclamation-circle text-red-400 mr-2 mt-0.5"></i>
+            <div>
+              <h3 class="text-sm font-medium text-red-800">
+                <%= pluralize(@marking_rule.errors.count, "error") %> prohibited this marking rule from being saved:
+              </h3>
+              <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+                <% @marking_rule.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Question Selection -->
+      <div class="bg-gray-50 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Question Selection</h3>
+
+        <div>
+          <%= form.label :assessment_question_id, "Question", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.select :assessment_question_id,
+              options_from_collection_for_select(@available_questions, :id, :display_text_with_type, @marking_rule.assessment_question_id),
+              { prompt: "Select a question..." },
+              {
+                class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500",
+                onchange: "loadRuleTypes(this.value)"
+              } %>
+        </div>
+      </div>
+
+      <!-- Rule Configuration -->
+      <div class="bg-gray-50 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Rule Configuration</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <%= form.label :rule_type, "Rule Type", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.select :rule_type,
+                @rule_types.map { |rt| [rt[:name], rt[:key]] },
+                { prompt: "Select rule type..." },
+                {
+                  class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500",
+                  onchange: "loadCriteriaFields(this.value)"
+                } %>
+            <div id="rule-type-description" class="mt-1 text-xs text-gray-500"></div>
+          </div>
+
+          <div>
+            <%= form.label :points, "Points", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.number_field :points,
+                step: 0.01,
+                class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500",
+                placeholder: "10.0" %>
+          </div>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <%= form.label :order, "Order", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.number_field :order,
+                class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500",
+                placeholder: "1" %>
+            <p class="mt-1 text-xs text-gray-500">Lower numbers are evaluated first</p>
+          </div>
+
+          <div class="flex items-center">
+            <label class="flex items-center">
+              <%= form.check_box :is_active, class: "rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" %>
+              <span class="ml-2 text-sm text-gray-700">Active rule</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rule Criteria -->
+      <div id="criteria-section" class="bg-gray-50 rounded-lg p-6" style="display: none;">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Rule Criteria</h3>
+        <div id="criteria-fields" class="space-y-4">
+          <!-- Dynamic criteria fields will be loaded here -->
+        </div>
+      </div>
+
+      <!-- Option Points (for option-based rules) -->
+      <div id="option-points-section" class="bg-blue-50 rounded-lg p-6" style="display: none;">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">
+          <i class="fas fa-coins text-blue-600 mr-2"></i>
+          Option Points Configuration
+        </h3>
+        <p class="text-sm text-gray-600 mb-4">Configure individual point values for each option. These points are awarded when the option is selected.</p>
+
+        <div id="option-points-fields" class="space-y-4">
+          <div class="text-center py-8 text-gray-500">
+            <i class="fas fa-info-circle text-2xl mb-2"></i>
+            <p>Select a question to configure option points</p>
+          </div>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-lightbulb text-yellow-400"></i>
+              </div>
+              <div class="ml-3">
+                <h4 class="text-sm font-medium text-yellow-800">Scoring Tips</h4>
+                <div class="mt-1 text-sm text-yellow-700">
+                  <ul class="list-disc list-inside space-y-1">
+                    <li><strong>Positive points:</strong> Awarded for correct/good answers</li>
+                    <li><strong>Zero points:</strong> No penalty or reward</li>
+                    <li><strong>Negative points:</strong> Penalty for wrong answers</li>
+                    <li><strong>Multiple selection:</strong> Points are summed for all selected options</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 bg-green-50 border border-green-200 rounded-md">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-check-circle text-green-400"></i>
+              </div>
+              <div class="ml-3">
+                <h4 class="text-sm font-medium text-green-800">Correct Answer Settings</h4>
+                <div class="mt-1 text-sm text-green-700">
+                  <ul class="list-disc list-inside space-y-1">
+                    <li><strong>Check the box:</strong> Mark options as correct answers</li>
+                    <li><strong>Multiple correct:</strong> Questions can have multiple right answers</li>
+                    <li><strong>Auto-scoring:</strong> Correct answers can get default points if not specified</li>
+                    <li><strong>Validation:</strong> At least one correct answer is recommended</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+        <%= link_to "Cancel", assessment_marking_scheme_marking_rules_path(@assessment, @marking_scheme),
+            class: "px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+
+        <%= form.submit "Create Marking Rule",
+            class: "px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize with selected question if any
+  const questionSelect = document.querySelector('#assessment_question_marking_rule_assessment_question_id');
+  if (questionSelect && questionSelect.value) {
+    loadRuleTypes(questionSelect.value);
+  }
+
+  // Initialize with selected rule type if any
+  const ruleTypeSelect = document.querySelector('#assessment_question_marking_rule_rule_type');
+  if (ruleTypeSelect && ruleTypeSelect.value) {
+    loadCriteriaFields(ruleTypeSelect.value);
+  }
+});
+
+function loadRuleTypes(questionId) {
+  if (!questionId) {
+    document.querySelector('#assessment_question_marking_rule_rule_type').innerHTML = '<option value="">Select rule type...</option>';
+    document.getElementById('rule-type-description').textContent = '';
+    loadQuestionOptions(null); // Clear options when no question selected
+    return;
+  }
+
+  // Load question options for option-based scoring
+  loadQuestionOptions(questionId);
+
+  fetch(`<%= rule_types_assessment_marking_scheme_marking_rules_path(@assessment, @marking_scheme) %>?question_id=${questionId}`)
+    .then(response => response.json())
+    .then(data => {
+      const ruleTypeSelect = document.querySelector('#assessment_question_marking_rule_rule_type');
+      ruleTypeSelect.innerHTML = '<option value="">Select rule type...</option>';
+
+      data.rule_types.forEach(ruleType => {
+        const option = document.createElement('option');
+        option.value = ruleType.key;
+        option.textContent = ruleType.name;
+        if (ruleType.key === data.default) {
+          option.selected = true;
+        }
+        ruleTypeSelect.appendChild(option);
+      });
+
+      // Load criteria fields for default rule type
+      if (data.default) {
+        loadCriteriaFields(data.default);
+      }
+    })
+    .catch(error => {
+      console.error('Error loading rule types:', error);
+    });
+}
+
+function loadCriteriaFields(ruleType) {
+  const descriptionEl = document.getElementById('rule-type-description');
+  const criteriaSection = document.getElementById('criteria-section');
+  const criteriaFields = document.getElementById('criteria-fields');
+  const optionPointsSection = document.getElementById('option-points-section');
+
+  if (!ruleType) {
+    descriptionEl.textContent = '';
+    criteriaSection.style.display = 'none';
+    optionPointsSection.style.display = 'none';
+    return;
+  }
+
+  // Show/hide option points section based on rule type
+  if (ruleType === 'option_based') {
+    optionPointsSection.style.display = 'block';
+  } else {
+    optionPointsSection.style.display = 'none';
+  }
+
+  fetch(`<%= criteria_fields_assessment_marking_scheme_marking_rules_path(@assessment, @marking_scheme) %>?rule_type=${ruleType}`)
+    .then(response => response.json())
+    .then(data => {
+      // Update description
+      const ruleTypeOption = document.querySelector(`#assessment_question_marking_rule_rule_type option[value="${ruleType}"]`);
+      if (ruleTypeOption) {
+        descriptionEl.textContent = ruleTypeOption.dataset.description || '';
+      }
+
+      // Clear existing criteria fields
+      criteriaFields.innerHTML = '';
+
+      if (data.criteria_fields && data.criteria_fields.length > 0) {
+        criteriaSection.style.display = 'block';
+
+        data.criteria_fields.forEach(field => {
+          const fieldDiv = document.createElement('div');
+          fieldDiv.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
+
+          const label = document.createElement('label');
+          label.className = 'block text-sm font-medium text-gray-700 mb-2';
+          label.textContent = field.name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+          let input;
+          if (field.type === 'boolean') {
+            input = document.createElement('input');
+            input.type = 'checkbox';
+            input.className = 'rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50';
+            input.checked = field.default || false;
+          } else if (field.type === 'number') {
+            input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500';
+            input.value = field.default || '';
+            if (field.min !== undefined) input.min = field.min;
+            if (field.max !== undefined) input.max = field.max;
+            if (field.step !== undefined) input.step = field.step;
+          } else {
+            input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500';
+            input.value = field.default || '';
+          }
+
+          input.name = `assessment_question_marking_rule[criteria][${field.name}]`;
+          input.id = `criteria_${field.name}`;
+
+          const inputDiv = document.createElement('div');
+          inputDiv.appendChild(label);
+          inputDiv.appendChild(input);
+
+          if (field.description_key) {
+            const description = document.createElement('p');
+            description.className = 'mt-1 text-xs text-gray-500';
+            description.textContent = field.description || '';
+            inputDiv.appendChild(description);
+          }
+
+          fieldDiv.appendChild(inputDiv);
+          criteriaFields.appendChild(fieldDiv);
+        });
+      } else {
+        criteriaSection.style.display = 'none';
+      }
+    })
+    .catch(error => {
+      console.error('Error loading criteria fields:', error);
+      criteriaSection.style.display = 'none';
+    });
+}
+
+function loadQuestionOptions(questionId) {
+  const optionPointsFields = document.getElementById('option-points-fields');
+
+  if (!questionId) {
+    optionPointsFields.innerHTML = `
+      <div class="text-center py-8 text-gray-500">
+        <i class="fas fa-info-circle text-2xl mb-2"></i>
+        <p>Select a question to configure option points</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Fetch question options
+  fetch(`/assessments/<%= @assessment.id %>/questions/${questionId}/options`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.options && data.options.length > 0) {
+        let optionsHtml = '';
+        data.options.forEach((option, index) => {
+          optionsHtml += `
+            <div class="bg-white p-4 rounded-lg border border-gray-200 option-points-row">
+              <div class="flex items-center justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center space-x-4">
+                    <div class="flex-shrink-0">
+                      <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-100 text-sm font-medium text-gray-600">
+                        ${index + 1}
+                      </span>
+                    </div>
+                    <div class="flex-1">
+                      <p class="text-sm font-medium text-gray-900">${option.text}</p>
+                      <div class="mt-1 flex items-center space-x-4">
+                        <label class="flex items-center">
+                          <input type="checkbox"
+                                 name="option_points[${option.id}][is_correct_answer]"
+                                 value="1"
+                                 ${option.is_correct_answer ? 'checked' : ''}
+
+                                 class="rounded border-gray-300 text-green-600 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50">
+                          <input type="hidden" name="option_points[${option.id}][is_correct_answer]" value="0">
+                          <span class="ml-2 text-sm text-gray-700">Correct Answer</span>
+                        </label>
+                        ${option.is_correct_answer ? `
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <i class="fas fa-check mr-1"></i>
+                            Currently Correct
+                          </span>
+                        ` : ''}
+                      </div>
+                    </div>
+                    <div class="flex-shrink-0">
+                      <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-gray-700">Points:</label>
+                        <input type="number" step="0.01"
+                               name="option_points[${option.id}][points]"
+                               value="${option.points || 0}"
+                               class="w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-center"
+                               placeholder="0"
+                               ${option.is_correct_answer ? '' : 'disabled'}
+                               title="Points apply only to options marked as correct"
+                               onchange="updatePointsPreview()">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        optionPointsFields.innerHTML = optionsHtml;
+      } else {
+        optionPointsFields.innerHTML = `
+          <div class="text-center py-8 text-gray-500">
+            <i class="fas fa-info-circle text-2xl mb-2"></i>
+            <p>This question has no options to configure</p>
+          </div>
+        `;
+      }
+    })
+    .catch(error => {
+      console.error('Error loading question options:', error);
+      optionPointsFields.innerHTML = `
+        <div class="text-center py-8 text-red-500">
+          <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+          <p>Error loading options</p>
+        </div>
+      `;
+         });
+ }
+
+ function updatePointsPreview() {
+   // Calculate total possible points from all options
+   const pointInputs = document.querySelectorAll('input[name*="[points]"]');
+   let totalPoints = 0;
+   let correctAnswerPoints = 0;
+
+   pointInputs.forEach(input => {
+     const points = parseFloat(input.value) || 0;
+     totalPoints += Math.max(0, points); // Only count positive points for total
+
+     // Check if this option is marked as correct
+     const optionId = input.name.match(/option_points\[(\d+)\]/)[1];
+     const correctCheckbox = document.querySelector(`input[name="option_points[${optionId}][is_correct_answer]"][type="checkbox"]`);
+     if (correctCheckbox && correctCheckbox.checked) {
+       correctAnswerPoints += points;
+     }
+   });
+
+   // Update the main points field suggestion
+   const mainPointsField = document.querySelector('#assessment_question_marking_rule_points');
+   if (mainPointsField && totalPoints > 0) {
+     // Suggest the total positive points as the rule points
+     if (!mainPointsField.value || mainPointsField.value == 0) {
+       mainPointsField.value = totalPoints;
+       mainPointsField.style.backgroundColor = '#f0f9ff'; // Light blue background
+       setTimeout(() => {
+         mainPointsField.style.backgroundColor = '';
+       }, 2000);
+     }
+   }
+ }
+
+ // Add event listeners for correct answer checkbox changes
+ document.addEventListener('change', function(e) {
+   if (e.target.type === 'checkbox' && e.target.name.includes('is_correct_answer')) {
+     updatePointsPreview();
+
+     // Visual feedback for correct answer changes
+     const row = e.target.closest('.option-points-row');
+     if (row) {
+       if (e.target.checked) {
+         row.style.borderColor = '#10b981'; // Green border
+         row.style.backgroundColor = '#f0fdf4'; // Light green background
+       } else {
+         row.style.borderColor = '#d1d5db'; // Default border
+         row.style.backgroundColor = '#ffffff'; // White background
+       }
+     }
+   }
+ });
+
+ // Validate that at least one correct answer is selected
+ function validateCorrectAnswers() {
+   const correctCheckboxes = document.querySelectorAll('input[name*="is_correct_answer"][type="checkbox"]:checked');
+   const warningDiv = document.getElementById('correct-answer-warning');
+
+   if (correctCheckboxes.length === 0) {
+     if (!warningDiv) {
+       const warning = document.createElement('div');
+       warning.id = 'correct-answer-warning';
+       warning.className = 'mt-2 p-3 bg-amber-50 border border-amber-200 rounded-md';
+       warning.innerHTML = `
+         <div class="flex">
+           <div class="flex-shrink-0">
+             <i class="fas fa-exclamation-triangle text-amber-400"></i>
+           </div>
+           <div class="ml-3">
+             <p class="text-sm text-amber-800">
+               <strong>Warning:</strong> No correct answers selected. Consider marking at least one option as correct for proper scoring.
+             </p>
+           </div>
+         </div>
+       `;
+       document.getElementById('option-points-fields').parentNode.appendChild(warning);
+     }
+   } else {
+     if (warningDiv) {
+       warningDiv.remove();
+     }
+   }
+ }
+
+ // Run validation when checkboxes change
+ document.addEventListener('change', function(e) {
+   if (e.target.type === 'checkbox' && e.target.name.includes('is_correct_answer')) {
+     setTimeout(validateCorrectAnswers, 100);
+   }
+ });
+ </script>

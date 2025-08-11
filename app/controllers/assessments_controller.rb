@@ -193,6 +193,24 @@ class AssessmentsController < ApplicationController
     end
   end
 
+  # API endpoint to get question options for marking rules
+  def question_options
+    question = AssessmentQuestion.find(params[:question_id])
+    options = question.assessment_question_options.ordered.map do |option|
+      {
+        id: option.id,
+        text: option.text.to_s,
+        points: option.is_correct_answer? ? (option.points || 0) : 0,
+        is_correct_answer: option.is_correct_answer?,
+        order: option.order,
+      }
+    end
+
+    render json: { options: options }
+  rescue ActiveRecord::RecordNotFound
+    render json: { options: [], error: "Question not found" }, status: 404
+  end
+
   private
 
   def set_assessment

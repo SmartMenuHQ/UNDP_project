@@ -1,0 +1,144 @@
+- key: "option_based"
+  name: "Option Based Scoring"
+  description_key: "rule_types.option_based.description"
+  applicable_question_types:
+    - "AssessmentQuestions::MultipleChoice"
+    - "AssessmentQuestions::Radio"
+    - "AssessmentQuestions::BooleanType"
+  criteria_fields:
+    - name: "partial_scoring"
+      type: "boolean"
+      default: false
+      description_key: "rule_types.option_based.partial_scoring"
+    - name: "negative_scoring"
+      type: "boolean"
+      default: false
+      description_key: "rule_types.option_based.negative_scoring"
+
+- key: "range_based"
+  name: "Range Based Scoring"
+  description_key: "rule_types.range_based.description"
+  applicable_question_types:
+    - "AssessmentQuestions::RangeType"
+    - "AssessmentQuestions::DateType"
+  criteria_fields:
+    - name: "min"
+      type: "number"
+      required: true
+      description_key: "rule_types.range_based.min"
+    - name: "max"
+      type: "number"
+      required: true
+      description_key: "rule_types.range_based.max"
+    - name: "tolerance"
+      type: "number"
+      default: 0
+      description_key: "rule_types.range_based.tolerance"
+
+- key: "exact_match"
+  name: "Exact Match Scoring"
+  description_key: "rule_types.exact_match.description"
+  applicable_question_types:
+    - "AssessmentQuestions::RichText"
+    - "AssessmentQuestions::RangeType"
+    - "AssessmentQuestions::DateType"
+  criteria_fields:
+    - name: "expected_values"
+      type: "array"
+      required: true
+      description_key: "rule_types.exact_match.expected_values"
+    - name: "case_sensitive"
+      type: "boolean"
+      default: false
+      description_key: "rule_types.exact_match.case_sensitive"
+    - name: "trim_whitespace"
+      type: "boolean"
+      default: true
+      description_key: "rule_types.exact_match.trim_whitespace"
+
+- key: "partial_match"
+  name: "Partial Match Scoring"
+  description_key: "rule_types.partial_match.description"
+  applicable_question_types:
+    - "AssessmentQuestions::RichText"
+  criteria_fields:
+    - name: "expected_values"
+      type: "array"
+      required: true
+      description_key: "rule_types.partial_match.expected_values"
+    - name: "partial_match_threshold"
+      type: "number"
+      default: 0.7
+      description_key: "rule_types.partial_match.threshold"
+    - name: "scoring_method"
+      type: "select"
+      options: ["proportional", "all_or_nothing"]
+      default: "proportional"
+      description_key: "rule_types.partial_match.scoring_method"
+
+- key: "keyword_based"
+  name: "Keyword Based Scoring"
+  description_key: "rule_types.keyword_based.description"
+  applicable_question_types:
+    - "AssessmentQuestions::RichText"
+  criteria_fields:
+    - name: "keywords"
+      type: "array"
+      required: true
+      description_key: "rule_types.keyword_based.keywords"
+    - name: "scoring_method"
+      type: "select"
+      options: ["proportional", "all_or_nothing"]
+      default: "proportional"
+      description_key: "rule_types.keyword_based.scoring_method"
+
+- key: "format_based"
+  name: "Format Based Scoring"
+  description_key: "rule_types.format_based.description"
+  applicable_question_types:
+    - "AssessmentQuestions::RichText"
+  criteria_fields:
+    - name: "format_pattern"
+      type: "string"
+      description_key: "rule_types.format_based.pattern"
+    - name: "phone_pattern"
+      type: "string"
+      default: "/\\A[\\d\\s\\-\\+\\(\\)]+\\z/"
+      description_key: "rule_types.format_based.phone_pattern"
+
+- key: "step_based"
+  name: "Step Based Scoring"
+  description_key: "rule_types.step_based.description"
+  applicable_question_types:
+    - "AssessmentQuestions::RangeType"
+  criteria_fields:
+    - name: "step_intervals"
+      type: "array"
+      required: true
+      description_key: "rule_types.step_based.intervals"
+
+- key: "tolerance_based"
+  name: "Tolerance Based Scoring"
+  description_key: "rule_types.tolerance_based.description"
+  applicable_question_types:
+    - "AssessmentQuestions::RangeType"
+    - "AssessmentQuestions::DateType"
+  criteria_fields:
+    - name: "expected_value"
+      type: "number"
+      required: true
+      description_key: "rule_types.tolerance_based.expected_value"
+    - name: "tolerance"
+      type: "number"
+      required: true
+      description_key: "rule_types.tolerance_based.tolerance"
+
+- key: "file_based"
+  name: "File Based Scoring"
+  description_key: "rule_types.file_based.description"
+  applicable_question_types:
+    - "AssessmentQuestions::FileUpload"
+  criteria_fields:
+    - name: "file_criteria"
+      type: "hash"
+      description_key: "rule_types.file_based.criteria"

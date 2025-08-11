@@ -1,0 +1,202 @@
+<div class="bg-white shadow rounded-lg">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Edit Response Session</h1>
+        <p class="text-sm text-gray-600">
+          Editing session for <%= @session.respondent_name %> • <%= @assessment.title %>
+        </p>
+      </div>
+      <div class="flex space-x-3">
+        <%= link_to "Cancel", assessment_response_session_path(@assessment, @session),
+            class: "bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="px-6 py-6">
+    <%= form_with model: [@assessment, @session], url: assessment_response_session_path(@assessment, @session), local: true, class: "space-y-6" do |form| %>
+      <% if @session.errors.any? %>
+        <div class="bg-red-50 border border-red-200 rounded-md p-4">
+          <div class="flex">
+            <i class="fas fa-exclamation-circle text-red-400 mr-2 mt-0.5"></i>
+            <div>
+              <h3 class="text-sm font-medium text-red-800">
+                <%= pluralize(@session.errors.count, "error") %> prohibited this session from being saved:
+              </h3>
+              <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+                <% @session.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Session Status -->
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <i class="fas fa-info-circle text-gray-600 mr-2"></i>
+            <div>
+              <h3 class="text-sm font-medium text-gray-800">Current Status</h3>
+              <div class="mt-1 text-sm text-gray-600">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                           <%= state_badge_class(@session.state) %>">
+                  <%= @session.state.humanize %>
+                </span>
+                <span class="ml-3">Created <%= @session.created_at.strftime("%B %d, %Y at %I:%M %p") %></span>
+              </div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-sm font-medium text-gray-900">
+              Progress: <%= @session.completion_percentage.round(1) %>%
+            </div>
+            <% if @session.marked? %>
+              <div class="text-sm text-gray-600">
+                Score: <%= @session.total_score.to_i %>/<%= @session.max_possible_score.to_i %>
+                (<%= @session.grade %>)
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Respondent Information -->
+      <div class="bg-gray-50 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Respondent Information</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <%= form.label :respondent_name, "Full Name *", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.text_field :respondent_name,
+                class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500",
+                required: true %>
+          </div>
+
+          <div>
+            <%= form.label :respondent_email, "Email Address", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.email_field :respondent_email,
+                class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" %>
+            <p class="mt-1 text-xs text-gray-500">Email is optional but required for notifications</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Session Metadata -->
+      <div class="bg-gray-50 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Session Information</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <%= form.label "metadata[browser_info]", "Browser/Device", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.text_field "metadata[browser_info]",
+                value: @session.metadata&.dig('browser_info'),
+                class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" %>
+          </div>
+
+          <div>
+            <%= form.label "metadata[ip_address]", "IP Address", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.text_field "metadata[ip_address]",
+                value: @session.metadata&.dig('ip_address'),
+                class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" %>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <%= form.label "metadata[session_data]", "Notes", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.text_area "metadata[session_data]",
+              value: @session.metadata&.dig('session_data'),
+              rows: 3,
+              class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" %>
+        </div>
+      </div>
+
+      <!-- Feedback (if marked) -->
+      <% if @session.marked? %>
+        <div class="bg-gray-50 rounded-lg p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Feedback</h3>
+
+          <div>
+            <%= form.label :feedback, "Custom Feedback", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.text_area :feedback,
+                rows: 4,
+                class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500",
+                placeholder: "Optional custom feedback for the respondent..." %>
+            <p class="mt-1 text-xs text-gray-500">This will override the auto-generated feedback from the marking scheme</p>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Session Timestamps (Read-only) -->
+      <div class="bg-gray-50 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Session Timeline</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <div class="text-sm text-gray-500 mb-1">Created</div>
+            <div class="text-sm font-medium text-gray-900">
+              <%= @session.created_at.strftime("%B %d, %Y at %I:%M %p") %>
+            </div>
+          </div>
+
+          <% if @session.started_at %>
+            <div>
+              <div class="text-sm text-gray-500 mb-1">Started</div>
+              <div class="text-sm font-medium text-gray-900">
+                <%= @session.started_at.strftime("%B %d, %Y at %I:%M %p") %>
+              </div>
+            </div>
+          <% end %>
+
+          <% if @session.completed_at %>
+            <div>
+              <div class="text-sm text-gray-500 mb-1">Completed</div>
+              <div class="text-sm font-medium text-gray-900">
+                <%= @session.completed_at.strftime("%B %d, %Y at %I:%M %p") %>
+              </div>
+            </div>
+          <% end %>
+
+          <% if @session.submitted_at %>
+            <div>
+              <div class="text-sm text-gray-500 mb-1">Submitted</div>
+              <div class="text-sm font-medium text-gray-900">
+                <%= @session.submitted_at.strftime("%B %d, %Y at %I:%M %p") %>
+              </div>
+            </div>
+          <% end %>
+
+          <% if @session.marked_at %>
+            <div>
+              <div class="text-sm text-gray-500 mb-1">Marked</div>
+              <div class="text-sm font-medium text-gray-900">
+                <%= @session.marked_at.strftime("%B %d, %Y at %I:%M %p") %>
+              </div>
+            </div>
+          <% end %>
+
+          <% if @session.duration %>
+            <div>
+              <div class="text-sm text-gray-500 mb-1">Duration</div>
+              <div class="text-sm font-medium text-gray-900">
+                <%= @session.duration_formatted %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+        <%= link_to "Cancel", assessment_response_session_path(@assessment, @session),
+            class: "px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+
+        <%= form.submit "Update Session",
+            class: "px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+      </div>
+    <% end %>
+  </div>
+</div>

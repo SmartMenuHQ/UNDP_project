@@ -1,0 +1,5 @@
+class AddUserToAssessmentResponseSessions < ActiveRecord::Migration[7.1]
+  def change
+    add_reference :assessment_response_sessions, :user, null: true, foreign_key: true
+  end
+end

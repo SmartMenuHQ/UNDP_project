@@ -20,7 +20,7 @@ gem "tailwindcss-rails"
 gem "jbuilder"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
-# gem "bcrypt", "~> 3.1.7"
+gem "bcrypt", "~> 3.1.7"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
@@ -32,6 +32,30 @@ gem "solid_cable"
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
+
+# Authorization
+gem "pundit", "~> 2.3"
+
+group :development, :test do
+  # Testing framework
+  gem "rspec-rails", "~> 6.0"
+  gem "factory_bot_rails", "~> 6.2"
+  gem "faker", "~> 3.2"
+
+  # API documentation
+  gem "rswag", "~> 2.16"
+  gem "rswag-specs", "~> 2.16"
+  gem "rswag-api", "~> 2.16"
+  gem "rswag-ui", "~> 2.16"
+end
+
+group :test do
+  # Test utilities
+  gem "shoulda-matchers", "~> 5.3"
+  gem "webmock", "~> 3.18"
+  gem "vcr", "~> 6.2"
+  gem "database_cleaner-active_record", "~> 2.1"
+end
 
 # Deploy this application anywhere as a Docker container [https://kamal-deploy.org]
 gem "kamal", require: false
@@ -66,3 +90,6 @@ gem "mobility", "~> 1.3"
 gem "google-cloud-translate", "~> 3.2", ">= 3.2.2"
 gem "deepl-rb", "~> 2.5"
 gem "vite_rails"
+gem "active_hash"
+gem "aasm"
+gem "groupdate"

@@ -147,3 +147,87 @@ en:
     short_text_limit: "Text must be %{count} characters or less"
     phone_min_length: "Phone number must be at least %{count} digits"
     password_min_length: "Password must be at least %{count} characters long"
+
+  # Marking scheme rule types
+  rule_types:
+    option_based:
+      description: "Score based on selected options (points assigned per option)"
+      partial_scoring: "Award partial points for partial matches"
+      negative_scoring: "Deduct points for wrong answers"
+
+    range_based:
+      description: "Score if response falls within specified range"
+      min: "Minimum value"
+      max: "Maximum value"
+      tolerance: "Tolerance for approximate matches"
+
+    exact_match:
+      description: "Score for exact match with expected answer(s)"
+      expected_values: "Expected answer(s)"
+      case_sensitive: "Case sensitive matching"
+      trim_whitespace: "Trim whitespace before comparison"
+
+    partial_match:
+      description: "Score based on partial text similarity"
+      expected_values: "Expected phrases"
+      threshold: "Similarity threshold (0.0-1.0)"
+      scoring_method: "Scoring method"
+
+    keyword_based:
+      description: "Score based on presence of specific keywords"
+      keywords: "Keywords to look for"
+      scoring_method: "Scoring method"
+
+    format_based:
+      description: "Score based on correct format (email, URL, phone, etc.)"
+      pattern: "Custom format pattern"
+      phone_pattern: "Phone number pattern"
+
+    step_based:
+      description: "Score based on step intervals (e.g., 1-5 rating scale)"
+      intervals: "Step intervals with points"
+
+    tolerance_based:
+      description: "Score with tolerance for approximate matches"
+      expected_value: "Expected value"
+      tolerance: "Tolerance range"
+
+    date_range_based:
+      description: "Score if date falls within specified range"
+      start_date: "Start date"
+      end_date: "End date"
+
+    time_based:
+      description: "Score based on time-specific criteria"
+      expected_time: "Expected time"
+      tolerance: "Time tolerance"
+
+    overlap_based:
+      description: "Score based on date range overlap"
+      start_date: "Expected start date"
+      end_date: "Expected end date"
+      scoring_method: "Scoring method"
+
+    file_based:
+      description: "Score based on file upload criteria"
+      criteria: "File criteria"
+
+    size_based:
+      description: "Score based on file size requirements"
+      max_size: "Maximum file size (bytes)"
+
+    type_based:
+      description: "Score based on file type requirements"
+      allowed_types: "Allowed file types"
+
+    content_based:
+      description: "Score based on file content analysis"
+      criteria: "Content criteria"
+
+    strength_based:
+      description: "Score based on password strength criteria"
+      criteria: "Strength criteria"
+
+    content_analysis:
+      description: "Score based on comprehensive text analysis"
+      rules: "Analysis rules"

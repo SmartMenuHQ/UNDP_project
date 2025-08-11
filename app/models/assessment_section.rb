@@ -2,30 +2,41 @@
 #
 # Table name: assessment_sections
 #
-#  id            :bigint           not null, primary key
-#  metadata      :jsonb
-#  name          :string
-#  order         :integer
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
-#  assessment_id :bigint           not null
+#  id                       :bigint           not null, primary key
+#  has_country_restrictions :boolean          default(FALSE), not null
+#  is_conditional           :boolean          default(FALSE)
+#  metadata                 :jsonb
+#  name                     :string
+#  order                    :integer
+#  restricted_countries     :jsonb
+#  visibility_conditions    :jsonb
+#  created_at               :datetime         not null
+#  updated_at               :datetime         not null
+#  assessment_id            :bigint           not null
 #
 # Indexes
 #
-#  index_assessment_sections_on_assessment_id  (assessment_id)
+#  index_assessment_sections_on_assessment_id             (assessment_id)
+#  index_assessment_sections_on_has_country_restrictions  (has_country_restrictions)
+#  index_assessment_sections_on_is_conditional            (is_conditional)
+#  index_assessment_sections_on_restricted_countries      (restricted_countries) USING gin
+#  index_assessment_sections_on_visibility_conditions     (visibility_conditions) USING gin
 #
 # Foreign Keys
 #
 #  fk_rails_...  (assessment_id => assessments.id)
 #
 class AssessmentSection < ApplicationRecord
+  include ConditionalVisibility
+  include CountryRestrictable
+
   belongs_to :assessment
   has_many :assessment_questions, dependent: :destroy
 
   # Nested attributes
   accepts_nested_attributes_for :assessment_questions, allow_destroy: true
 
-    # Callbacks (run before validation to set auto-generated values)
+  # Callbacks (run before validation to set auto-generated values)
   before_validation :auto_generate_name, if: :should_auto_generate_name?
   before_validation :auto_set_order, if: :should_auto_set_order?
 

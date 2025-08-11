@@ -2,38 +2,51 @@
 #
 # Table name: assessment_questions
 #
-#  id                    :bigint           not null, primary key
-#  active                :boolean          default(TRUE)
-#  default_locale        :string
-#  is_required           :boolean          default(FALSE)
-#  meta_data             :jsonb
-#  options_json          :jsonb
-#  order                 :integer
-#  sub_type              :string
-#  text                  :jsonb
-#  type                  :string
-#  created_at            :datetime         not null
-#  updated_at            :datetime         not null
-#  assessment_id         :bigint
-#  assessment_section_id :bigint
+#  id                       :bigint           not null, primary key
+#  active                   :boolean          default(TRUE)
+#  default_locale           :string
+#  has_country_restrictions :boolean          default(FALSE), not null
+#  is_conditional           :boolean          default(FALSE)
+#  is_required              :boolean          default(FALSE)
+#  meta_data                :jsonb
+#  options_json             :jsonb
+#  order                    :integer
+#  restricted_countries     :jsonb
+#  sub_type                 :string
+#  text                     :jsonb
+#  type                     :string
+#  visibility_conditions    :jsonb
+#  created_at               :datetime         not null
+#  updated_at               :datetime         not null
+#  assessment_id            :bigint
+#  assessment_section_id    :bigint
 #
 # Indexes
 #
-#  index_assessment_questions_on_assessment_id          (assessment_id)
-#  index_assessment_questions_on_assessment_section_id  (assessment_section_id)
+#  index_assessment_questions_on_assessment_id             (assessment_id)
+#  index_assessment_questions_on_assessment_section_id     (assessment_section_id)
+#  index_assessment_questions_on_has_country_restrictions  (has_country_restrictions)
+#  index_assessment_questions_on_is_conditional            (is_conditional)
+#  index_assessment_questions_on_restricted_countries      (restricted_countries) USING gin
+#  index_assessment_questions_on_visibility_conditions     (visibility_conditions) USING gin
 #
 class AssessmentQuestion < ApplicationRecord
   extend Mobility
+  include ConditionalVisibility
+  include CountryRestrictable
 
   belongs_to :assessment
   belongs_to :assessment_section
 
   has_many :assessment_question_responses, dependent: :destroy
+  has_many :assessment_question_marking_rules, dependent: :destroy
+  has_many :assessment_question_options, dependent: :destroy
 
   translates :text, backend: :jsonb
 
   # Validations
-  validates :text, presence: true, length: { minimum: 3, maximum: 1000 }
+  validates :text, presence: true
+  validate :text_length_validation
   validates :type, presence: true
   validates :order, presence: true, numericality: { greater_than: 0 }
   validates :order, uniqueness: { scope: :assessment_section_id }
@@ -105,8 +118,54 @@ class AssessmentQuestion < ApplicationRecord
     is_required? ? "red" : "gray"
   end
 
+  def display_text_with_type
+    truncated_text = text.to_s.length > 60 ? "#{text.to_s[0..60]}..." : text.to_s
+    "#{truncated_text} (#{question_type_name})"
+  end
+
   def display_text
     text.presence || "Question #{order}"
+  end
+
+  # Public method to get localized text
+  def localized_text(locale = nil)
+    locale ||= Current.locale.to_s
+    text_data = read_attribute(:text) || {}
+
+    # Handle nested hash structure from Mobility gem
+    if text_data.is_a?(Hash) && text_data[locale].present?
+      text_value = text_data[locale]
+      # If the value is another hash, extract the actual text
+      if text_value.is_a?(Hash) && text_value[locale].present?
+        text_value[locale]
+      elsif text_value.is_a?(Hash) && text_value["en"].present?
+        text_value["en"]
+      elsif text_value.is_a?(Hash) && text_value.values.first.present?
+        text_value.values.first
+      else
+        text_value.to_s
+      end
+    elsif text_data.is_a?(Hash) && text_data["en"].present?
+      text_value = text_data["en"]
+      # If the value is another hash, extract the actual text
+      if text_value.is_a?(Hash) && text_value["en"].present?
+        text_value["en"]
+      elsif text_value.is_a?(Hash) && text_value.values.first.present?
+        text_value.values.first
+      else
+        text_value.to_s
+      end
+    elsif text_data.is_a?(Hash) && text_data.values.first.present?
+      text_value = text_data.values.first
+      # If the value is another hash, extract the actual text
+      if text_value.is_a?(Hash) && text_value.values.first.present?
+        text_value.values.first
+      else
+        text_value.to_s
+      end
+    else
+      ""
+    end
   end
 
   def can_be_deleted?
@@ -175,6 +234,30 @@ class AssessmentQuestion < ApplicationRecord
   # Get available validation rules for this question type - delegated to specific question type
   def available_validation_rules
     available_validation_rules_for_type
+  end
+
+  # Marking scheme methods
+  def available_marking_rule_types
+    RuleType.rule_type_keys_for_question_type(type)
+  end
+
+  def default_marking_rule_type
+    available_marking_rule_types.first
+  end
+
+  def supports_multiple_rule_types?
+    available_marking_rule_types.length > 1
+  end
+
+  def rule_type_description(rule_type_key)
+    rule_type = RuleType.find_by_key(rule_type_key)
+    return "Unknown rule type" unless rule_type
+
+    I18n.t(rule_type.description_key, default: rule_type.name)
+  end
+
+  def applicable_rule_types
+    RuleType.applicable_for_question_type(type)
   end
 
   protected
@@ -256,5 +339,18 @@ class AssessmentQuestion < ApplicationRecord
 
   def ensure_meta_data_initialized
     self.meta_data ||= {}
+  end
+
+  def text_length_validation
+    return unless text.present?
+
+    # Get the localized text for validation
+    localized_text = localized_text(Current.locale)
+
+    if localized_text.length < 3
+      errors.add(:text, "is too short (minimum is 3 characters)")
+    elsif localized_text.length > 1000
+      errors.add(:text, "is too long (maximum is 1000 characters)")
+    end
   end
 end

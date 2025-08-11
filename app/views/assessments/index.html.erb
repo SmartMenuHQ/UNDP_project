@@ -68,7 +68,7 @@
         <!-- Assessment Actions -->
         <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
           <div class="flex justify-between items-center">
-            <div class="flex space-x-2">
+            <div class="flex flex-wrap gap-2">
               <%= link_to assessment_path(assessment),
                   class: "text-blue-600 hover:text-blue-800 text-sm font-medium" do %>
                 View
@@ -80,6 +80,23 @@
               <%= link_to preview_assessment_path(assessment),
                   class: "text-purple-600 hover:text-purple-800 text-sm font-medium" do %>
                 Preview
+              <% end %>
+
+              <!-- New Response Session Features -->
+              <%= link_to assessment_response_sessions_path(assessment),
+                  class: "text-indigo-600 hover:text-indigo-800 text-sm font-medium" do %>
+                <i class="fas fa-users mr-1"></i>
+                Responses
+              <% end %>
+              <%= link_to assessment_marking_schemes_path(assessment),
+                  class: "text-orange-600 hover:text-orange-800 text-sm font-medium" do %>
+                <i class="fas fa-award mr-1"></i>
+                Marking
+              <% end %>
+              <%= link_to analytics_assessment_response_sessions_path(assessment),
+                  class: "text-teal-600 hover:text-teal-800 text-sm font-medium" do %>
+                <i class="fas fa-chart-bar mr-1"></i>
+                Analytics
               <% end %>
             </div>
             <div class="flex items-center space-x-2">

@@ -2,16 +2,18 @@
 #
 # Table name: assessment_question_responses
 #
-#  id                     :bigint           not null, primary key
-#  metadata               :jsonb
-#  value                  :jsonb
-#  created_at             :datetime         not null
-#  updated_at             :datetime         not null
-#  assessment_id          :bigint           not null
-#  assessment_question_id :bigint           not null
+#  id                             :bigint           not null, primary key
+#  metadata                       :jsonb
+#  value                          :jsonb
+#  created_at                     :datetime         not null
+#  updated_at                     :datetime         not null
+#  assessment_id                  :bigint           not null
+#  assessment_question_id         :bigint           not null
+#  assessment_response_session_id :bigint
 #
 # Indexes
 #
+#  idx_on_assessment_response_session_id_4618f6d7db               (assessment_response_session_id)
 #  index_assessment_question_responses_on_assessment_id           (assessment_id)
 #  index_assessment_question_responses_on_assessment_question_id  (assessment_question_id)
 #
@@ -19,13 +21,16 @@
 #
 #  fk_rails_...  (assessment_id => assessments.id)
 #  fk_rails_...  (assessment_question_id => assessment_questions.id)
+#  fk_rails_...  (assessment_response_session_id => assessment_response_sessions.id)
 #
 class AssessmentQuestionResponse < ApplicationRecord
   belongs_to :assessment_question
   belongs_to :assessment
+  belongs_to :assessment_response_session, optional: true
 
   has_many :selected_options, dependent: :destroy
   has_many :assessment_question_options, through: :selected_options
+  has_many :assessment_response_scores, dependent: :destroy
 
   # Callbacks
   after_initialize :ensure_jsonb_initialized
@@ -88,6 +93,20 @@ class AssessmentQuestionResponse < ApplicationRecord
   def ensure_jsonb_initialized
     self.value ||= {}
     self.metadata ||= {}
+  end
+
+  # Marking methods
+  def score_for_scheme(scheme_id)
+    assessment_response_scores.find_by(assessment_marking_scheme_id: scheme_id)
+  end
+
+  def total_score_earned_for_scheme(scheme_id)
+    score_for_scheme(scheme_id)&.score_earned || 0
+  end
+
+  def grade_response(scheme_id)
+    scheme = AssessmentMarkingScheme.find(scheme_id)
+    scheme.grade_response(self)
   end
 
   def set_selected_options(option_ids)

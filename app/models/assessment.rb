@@ -2,18 +2,30 @@
 #
 # Table name: assessments
 #
-#  id          :bigint           not null, primary key
-#  active      :boolean          default(TRUE)
-#  description :text
-#  title       :string
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
+#  id                       :bigint           not null, primary key
+#  active                   :boolean          default(TRUE)
+#  description              :text
+#  has_country_restrictions :boolean          default(FALSE), not null
+#  restricted_countries     :jsonb
+#  title                    :string
+#  created_at               :datetime         not null
+#  updated_at               :datetime         not null
+#
+# Indexes
+#
+#  index_assessments_on_has_country_restrictions  (has_country_restrictions)
+#  index_assessments_on_restricted_countries      (restricted_countries) USING gin
 #
 class Assessment < ApplicationRecord
+  include CountryRestrictable
+  include VisibilityResolver
+
   has_many :assessment_sections, dependent: :destroy
   has_many :assessment_questions, dependent: :destroy
   has_many :assessment_question_options, dependent: :destroy
   has_many :assessment_question_responses, dependent: :destroy
+  has_many :assessment_response_sessions, dependent: :destroy
+  has_many :assessment_marking_schemes, dependent: :destroy
 
   # Nested attributes
   accepts_nested_attributes_for :assessment_sections, allow_destroy: true

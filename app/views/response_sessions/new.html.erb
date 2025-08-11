@@ -1,0 +1,180 @@
+<div class="bg-white shadow rounded-lg">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">New Response Session</h1>
+        <p class="text-sm text-gray-600">Create a new response session for <%= @assessment.title %></p>
+      </div>
+      <div class="flex space-x-3">
+        <%= link_to "Cancel", assessment_response_sessions_path(@assessment),
+            class: "bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="px-6 py-6">
+    <%= form_with model: [@assessment, @session], url: assessment_response_sessions_path(@assessment), local: true, class: "space-y-6" do |form| %>
+      <% if @session.errors.any? %>
+        <div class="bg-red-50 border border-red-200 rounded-md p-4">
+          <div class="flex">
+            <i class="fas fa-exclamation-circle text-red-400 mr-2 mt-0.5"></i>
+            <div>
+              <h3 class="text-sm font-medium text-red-800">
+                <%= pluralize(@session.errors.count, "error") %> prohibited this session from being saved:
+              </h3>
+              <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+                <% @session.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Assessment Information -->
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex items-center">
+          <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+          <div>
+            <h3 class="text-sm font-medium text-blue-800">Assessment Information</h3>
+            <div class="mt-1 text-sm text-blue-700">
+              <p><strong><%= @assessment.title %></strong></p>
+              <p class="mt-1"><%= @assessment.description if @assessment.description.present? %></p>
+              <div class="mt-2 flex space-x-4">
+                <span><%= @assessment.total_sections %> sections</span>
+                <span><%= @assessment.total_questions %> questions</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Respondent Information -->
+      <div class="bg-gray-50 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Respondent Information</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <%= form.label :respondent_name, "Full Name *", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.text_field :respondent_name,
+                class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500",
+                placeholder: "Enter respondent's full name",
+                required: true %>
+          </div>
+
+          <div>
+            <%= form.label :respondent_email, "Email Address", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.email_field :respondent_email,
+                class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500",
+                placeholder: "email@example.com (optional)" %>
+            <p class="mt-1 text-xs text-gray-500">Email is optional but required for notifications</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Session Options -->
+      <div class="bg-gray-50 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Session Options</h3>
+
+        <div class="space-y-4">
+          <div>
+            <label class="flex items-center">
+              <input type="checkbox" id="auto-start" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+              <span class="ml-2 text-sm text-gray-700">Automatically start the session after creation</span>
+            </label>
+          </div>
+
+          <div>
+            <label class="flex items-center">
+              <input type="checkbox" id="send-invitation" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+              <span class="ml-2 text-sm text-gray-700">Send invitation email to respondent</span>
+            </label>
+            <p class="ml-6 mt-1 text-xs text-gray-500">Requires email address</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Session Metadata -->
+      <div class="bg-gray-50 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Additional Information</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <%= form.label "metadata[browser_info]", "Browser/Device", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.text_field "metadata[browser_info]",
+                class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500",
+                placeholder: "e.g., Chrome on Windows (optional)" %>
+          </div>
+
+          <div>
+            <%= form.label "metadata[ip_address]", "IP Address", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.text_field "metadata[ip_address]",
+                value: request.remote_ip,
+                class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500",
+                placeholder: "Automatically detected" %>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <%= form.label "metadata[session_data]", "Notes", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.text_area "metadata[session_data]",
+              rows: 3,
+              class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500",
+              placeholder: "Optional notes about this session..." %>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+        <%= link_to "Cancel", assessment_response_sessions_path(@assessment),
+            class: "px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+
+        <%= form.submit "Create Session",
+            class: "px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const emailField = document.querySelector('#assessment_response_session_respondent_email');
+  const sendInvitationCheckbox = document.getElementById('send-invitation');
+
+  // Enable/disable send invitation based on email
+  function toggleInvitationOption() {
+    if (emailField.value.trim()) {
+      sendInvitationCheckbox.disabled = false;
+      sendInvitationCheckbox.parentElement.classList.remove('opacity-50');
+    } else {
+      sendInvitationCheckbox.disabled = true;
+      sendInvitationCheckbox.checked = false;
+      sendInvitationCheckbox.parentElement.classList.add('opacity-50');
+    }
+  }
+
+  emailField.addEventListener('input', toggleInvitationOption);
+  toggleInvitationOption(); // Initial check
+
+  // Auto-detect browser info
+  const browserField = document.querySelector('[name="assessment_response_session[metadata][browser_info]"]');
+  if (browserField && !browserField.value) {
+    const userAgent = navigator.userAgent;
+    let browserInfo = '';
+
+    if (userAgent.includes('Chrome')) browserInfo += 'Chrome ';
+    else if (userAgent.includes('Firefox')) browserInfo += 'Firefox ';
+    else if (userAgent.includes('Safari')) browserInfo += 'Safari ';
+    else if (userAgent.includes('Edge')) browserInfo += 'Edge ';
+
+    if (userAgent.includes('Windows')) browserInfo += 'on Windows';
+    else if (userAgent.includes('Mac')) browserInfo += 'on macOS';
+    else if (userAgent.includes('Linux')) browserInfo += 'on Linux';
+    else if (userAgent.includes('Android')) browserInfo += 'on Android';
+    else if (userAgent.includes('iOS')) browserInfo += 'on iOS';
+
+    browserField.value = browserInfo.trim();
+  }
+});
+</script>
