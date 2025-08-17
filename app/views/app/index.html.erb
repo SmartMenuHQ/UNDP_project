@@ -1,21 +1,21 @@
 <% content_for :title, "Questionnaire CMS" %>
 
-<div id="react-app" class="min-h-screen">
-  <!-- React app will mount here -->
-  <div class="flex items-center justify-center h-screen">
-    <div class="text-center">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-      <p class="mt-4 text-gray-600">Loading application...</p>
+<div id="react-app" class="min-h-screen bg-background font-sans antialiased">
+    <!-- React app will mount here -->
+    <div class="flex items-center justify-center h-screen bg-background">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p class="mt-4 text-gray-600">Loading application...</p>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
-  // Pass Rails data to the client-side app
-  window.railsData = {
-    csrfToken: '<%= form_authenticity_token %>',
-    currentUser: null, // Add user data when authentication is implemented
-    apiEndpoint: '<%= request.base_url %>/api',
-    environment: '<%= Rails.env %>'
-  };
+    // Pass Rails data to the client-side app
+    window.railsData = {
+        csrfToken: '<%= form_authenticity_token %>',
+        currentUser: null, // Add user data when authentication is implemented
+        apiEndpoint: '<%= request.base_url %>/api',
+        environment: '<%= Rails.env %>'
+    };
 </script>
