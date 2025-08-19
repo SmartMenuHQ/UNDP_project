@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
 	Dropdown,
 	DropdownDivider,
@@ -22,38 +23,43 @@ import { RouteObject, useNavigate } from "react-router";
 import DashboardLayout from "../layouts/DashboardLayout";
 import ApplicationSidebar from "../components/Sidebar/Sidebar";
 import { useAuth } from "../contexts/AuthContext";
+import { fetchAssessments } from "../api/assessments";
 
-// Dummy assessment data
-const dummyAssessments = [
-	{
-		id: 1,
-		name: "Digital Transformation Readiness",
-		owner: "Dexter Morgan",
-		status: "Active",
-		created: "2024-07-21",
-		responses: 15,
-	},
-	{
-		id: 2,
-		name: "Business Impact Assessment",
-		owner: "Debra Morgan",
-		status: "Draft",
-		created: "2024-07-20",
-		responses: 0,
-	},
-	{
-		id: 3,
-		name: "Sustainability Evaluation",
-		owner: "Brian Moser",
-		status: "Active",
-		created: "2024-07-19",
-		responses: 8,
-	},
-];
+interface Assessment {
+	id: number;
+	title: string;
+	description: string;
+	active: boolean;
+	has_country_restrictions: boolean;
+	restricted_countries: string[];
+	sections_count: number;
+	questions_count: number;
+	created_at: string;
+	updated_at: string;
+}
 
 export default function Homepage() {
 	const navigate = useNavigate();
 	const { logout, user } = useAuth();
+	const [assessments, setAssessments] = useState<Assessment[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+
+	useEffect(() => {
+		const loadAssessments = async () => {
+			try {
+				const data = await fetchAssessments();
+				setAssessments(data);
+			} catch (err) {
+				console.error('Failed to fetch assessments:', err);
+				setError(err instanceof Error ? err.message : 'Failed to load assessments');
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		loadAssessments();
+	}, []);
 
 	const handleNewAssessment = () => {
 		navigate('/app/assessments/new');
@@ -62,6 +68,10 @@ export default function Homepage() {
 	const handleSignOut = () => {
 		logout();
 		navigate('/app/login');
+	};
+
+	const handleEditAssessment = (assessmentId: number) => {
+		navigate(`/app/assessments/${assessmentId}/sections`);
 	};
 
 	return (
@@ -174,60 +184,86 @@ export default function Homepage() {
 								</TableRow>
 							</TableHead>
 							<TableBody>
-								{dummyAssessments.map((assessment, index) => (
-									<TableRow key={assessment.id} className={`${index !== dummyAssessments.length - 1 ? 'border-b border-gray-200' : ''} hover:bg-gray-50 transition-colors duration-150`}>
-										<TableCell className="px-6 py-4">
-											<div className="flex items-center space-x-3">
-												<input type="checkbox" className="rounded border-gray-300" />
-												<div className="flex items-center space-x-3">
-													<div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-														<FileText className="w-4 h-4 text-gray-600" />
-													</div>
-													<span className="font-medium text-gray-900">{assessment.name}</span>
-												</div>
-											</div>
-										</TableCell>
-										<TableCell className="px-6 py-4">
-											<div className="flex items-center space-x-2">
-												<div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
-													{assessment.owner.charAt(0)}
-												</div>
-												<span className="text-gray-900">{assessment.owner}</span>
-											</div>
-										</TableCell>
-										<TableCell className="px-6 py-4">
-											<span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-												assessment.status === 'Active' 
-													? 'bg-green-100 text-green-800' 
-													: 'bg-yellow-100 text-yellow-800'
-											}`}>
-												{assessment.status}
-											</span>
-										</TableCell>
-										<TableCell className="px-6 py-4 text-gray-500">
-											<div className="flex items-center space-x-1">
-												<Calendar className="w-4 h-4" />
-												<span>{new Date(assessment.created).toLocaleDateString()}</span>
-											</div>
-										</TableCell>
-										<TableCell className="px-6 py-4 text-gray-500">
-											{assessment.responses} responses
-										</TableCell>
-										<TableCell className="px-6 py-4">
-											<div className="flex items-center space-x-2">
-												<button className="p-1.5 rounded-md hover:bg-blue-50 transition-colors group cursor-pointer">
-													<Eye className="w-4 h-4 text-gray-600 group-hover:text-blue-600 cursor-pointer" />
-												</button>
-												<button className="p-1.5 rounded-md hover:bg-green-50 transition-colors group cursor-pointer">
-													<Edit className="w-4 h-4 text-gray-600 group-hover:text-green-600 cursor-pointer" />
-												</button>
-												<button className="p-1.5 rounded-md hover:bg-red-50 transition-colors group cursor-pointer">
-													<Trash2 className="w-4 h-4 text-gray-600 group-hover:text-red-600 cursor-pointer" />
-												</button>
+								{loading ? (
+									<TableRow>
+										<TableCell colSpan={6} className="px-6 py-8 text-center">
+											<div className="flex items-center justify-center">
+												<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600 mr-3"></div>
+												Loading assessments...
 											</div>
 										</TableCell>
 									</TableRow>
-								))}
+								) : error ? (
+									<TableRow>
+										<TableCell colSpan={6} className="px-6 py-8 text-center text-red-600">
+											{error}
+										</TableCell>
+									</TableRow>
+								) : assessments.length === 0 ? (
+									<TableRow>
+										<TableCell colSpan={6} className="px-6 py-8 text-center text-gray-500">
+											No assessments found. Create your first assessment to get started.
+										</TableCell>
+									</TableRow>
+								) : (
+									assessments.map((assessment, index) => (
+										<TableRow key={assessment.id} className={`${index !== assessments.length - 1 ? 'border-b border-gray-200' : ''} hover:bg-gray-50 transition-colors duration-150`}>
+											<TableCell className="px-6 py-4">
+												<div className="flex items-center space-x-3">
+													<input type="checkbox" className="rounded border-gray-300" />
+													<div className="flex items-center space-x-3">
+														<div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+															<FileText className="w-4 h-4 text-gray-600" />
+														</div>
+														<span className="font-medium text-gray-900">{assessment.title}</span>
+													</div>
+												</div>
+											</TableCell>
+											<TableCell className="px-6 py-4">
+												<div className="flex items-center space-x-2">
+													<div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+														{user?.first_name?.charAt(0) || 'U'}
+													</div>
+													<span className="text-gray-900">{user?.display_name || user?.full_name || 'Unknown User'}</span>
+												</div>
+											</TableCell>
+											<TableCell className="px-6 py-4">
+												<span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+													assessment.active 
+														? 'bg-green-100 text-green-800' 
+														: 'bg-yellow-100 text-yellow-800'
+												}`}>
+													{assessment.active ? 'Active' : 'Draft'}
+												</span>
+											</TableCell>
+											<TableCell className="px-6 py-4 text-gray-500">
+												<div className="flex items-center space-x-1">
+													<Calendar className="w-4 h-4" />
+													<span>{new Date(assessment.created_at).toLocaleDateString()}</span>
+												</div>
+											</TableCell>
+											<TableCell className="px-6 py-4 text-gray-500">
+												{assessment.sections_count} sections, {assessment.questions_count} questions
+											</TableCell>
+											<TableCell className="px-6 py-4">
+												<div className="flex items-center space-x-2">
+													<button className="p-1.5 rounded-md hover:bg-blue-50 transition-colors group cursor-pointer">
+														<Eye className="w-4 h-4 text-gray-600 group-hover:text-blue-600 cursor-pointer" />
+													</button>
+													<button 
+														onClick={() => handleEditAssessment(assessment.id)}
+														className="p-1.5 rounded-md hover:bg-green-50 transition-colors group cursor-pointer"
+													>
+														<Edit className="w-4 h-4 text-gray-600 group-hover:text-green-600 cursor-pointer" />
+													</button>
+													<button className="p-1.5 rounded-md hover:bg-red-50 transition-colors group cursor-pointer">
+														<Trash2 className="w-4 h-4 text-gray-600 group-hover:text-red-600 cursor-pointer" />
+													</button>
+												</div>
+											</TableCell>
+										</TableRow>
+									))
+								)}
 							</TableBody>
 						</Table>
 					</div>

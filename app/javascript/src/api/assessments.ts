@@ -97,13 +97,13 @@ export const fetchAssessments = async (): Promise<Assessment[]> => {
 		throw new Error(`HTTP Error: ${response.status}`);
 	}
 
-	const result: ApiResponse<Assessment[]> = await response.json();
+	const result: ApiResponse<{assessments: Assessment[], total_count: number, active_count: number, inactive_count: number}> = await response.json();
 	
 	if (result.status === 'error') {
 		throw new Error(result.errors[0] || 'Failed to fetch assessments');
 	}
 
-	return result.data;
+	return result.data.assessments;
 };
 
 // Fetch single assessment
