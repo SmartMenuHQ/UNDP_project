@@ -29,6 +29,26 @@ else
   puts "❌ Failed to create admin user: #{admin.errors.full_messages.join(', ')}"
 end
 
+# Create specific UNDP user
+puts "\n👤 Creating UNDP user..."
+undp_user = User.find_or_create_by(email_address: "dan4allu93@undp.com") do |user|
+  user.password = "P@55menow!!"
+  user.password_confirmation = "P@55menow!!"
+  user.admin = true
+  user.first_name = "Dan"
+  user.last_name = "Morgan"
+  user.country = Country.find_by(code: "USA")
+  user.default_language = "en"
+  user.profile_completed = true
+end
+
+if undp_user.persisted?
+  puts "✅ UNDP user created: #{undp_user.email_address}"
+  puts "   Password: P@55menow!!"
+else
+  puts "❌ Failed to create UNDP user: #{undp_user.errors.full_messages.join(', ')}"
+end
+
 # Create some regular users
 puts "\n👥 Creating regular users..."
 regular_users_data = [

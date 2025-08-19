@@ -6,10 +6,34 @@ import "flowbite";
 import { ThemeProvider, createTheme } from "flowbite-react";
 import { routePath as notFoundRoute } from "@/src/pages/404";
 import ErrorBoundary from "@/src/components/ErrorBoundary";
+import { AuthProvider } from "@/src/contexts/AuthContext";
+import ProtectedRoute from "@/src/components/ProtectedRoute";
 
 const rootElement = document.getElementById("react-app");
 
-const router = createBrowserRouter([...loadRoutes(), notFoundRoute]);
+// Wrap protected routes with ProtectedRoute component
+const routes = loadRoutes().map(route => {
+  // Login page should not be protected
+  if (route.path === "/app/login") {
+    return route;
+  }
+  
+  // All other /app/* routes should be protected
+  if (route.path?.startsWith("/app")) {
+    return {
+      ...route,
+      Component: route.Component ? () => (
+        <ProtectedRoute>
+          <route.Component />
+        </ProtectedRoute>
+      ) : undefined
+    };
+  }
+  
+  return route;
+});
+
+const router = createBrowserRouter([...routes, notFoundRoute]);
 
 console.log("🚀 Loaded routes:", loadRoutes());
 
@@ -39,7 +63,9 @@ if (rootElement) {
 	root.render(
 		<ThemeProvider theme={theme}>
 			<ErrorBoundary>
-				<RouterProvider router={router} />
+				<AuthProvider>
+					<RouterProvider router={router} />
+				</AuthProvider>
 			</ErrorBoundary>
 		</ThemeProvider>
 	);
