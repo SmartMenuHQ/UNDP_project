@@ -3,23 +3,37 @@
 import { useState, useEffect } from "react";
 import { RouteObject, useNavigate } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
+import { getHomeRoute } from "../utils/navigation";
 
 function Login() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
-	const { login, isAuthenticated } = useAuth();
+	const { login, isAuthenticated, user } = useAuth();
 	const navigate = useNavigate();
 
 	// Redirect if already authenticated
 	useEffect(() => {
-		if (isAuthenticated) {
-			const redirectPath = localStorage.getItem('redirectAfterLogin') || '/app';
-			localStorage.removeItem('redirectAfterLogin');
+		if (isAuthenticated && user) {
+			const savedRedirectPath = localStorage.getItem("redirectAfterLogin");
+			localStorage.removeItem("redirectAfterLogin");
+
+			let redirectPath = savedRedirectPath;
+
+			// If no saved redirect path, determine default based on user role
+			if (!redirectPath) {
+				redirectPath = getHomeRoute(user);
+			}
+
+			console.log("Login redirect:", { user, redirectPath });
+			if (user.admin && redirectPath === "/app/dashboard") {
+				redirectPath = "/app"; // Admins go to admin dashboard
+			}
+
 			navigate(redirectPath, { replace: true });
 		}
-	}, [isAuthenticated, navigate]);
+	}, [isAuthenticated, user, navigate]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -30,8 +44,38 @@ function Login() {
 			await login(email, password);
 			// Navigation will happen via the useEffect hook
 		} catch (err) {
-			console.error('Login failed:', err);
-			setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
+			console.error("Login failed:", err);
+
+			// Enhanced error message handling
+			let errorMessage = "Login failed. Please try again.";
+
+			if (err instanceof Error) {
+				errorMessage = err.message;
+			} else if (typeof err === "string") {
+				errorMessage = err;
+			} else if (err && typeof err === "object") {
+				// Handle cases where err might be an object with error information
+				if ("message" in err && typeof err.message === "string") {
+					errorMessage = err.message;
+				} else if ("error" in err && typeof err.error === "string") {
+					errorMessage = err.error;
+				} else if ("errors" in err && Array.isArray(err.errors) && err.errors.length > 0) {
+					const firstError = err.errors[0];
+					// Handle both string errors and object errors with message property
+					if (typeof firstError === "string") {
+						errorMessage = firstError;
+					} else if (firstError && typeof firstError === "object" && firstError.message) {
+						errorMessage = firstError.message;
+					} else {
+						errorMessage = "Login failed. Please check your credentials and try again.";
+					}
+				} else {
+					// Fallback for objects that don't have recognizable error properties
+					errorMessage = "Login failed. Please check your credentials and try again.";
+				}
+			}
+
+			setError(errorMessage);
 		} finally {
 			setIsLoading(false);
 		}
@@ -51,9 +95,12 @@ function Login() {
 						<h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
 							Login to your account
 						</h1>
-						
+
 						{error && (
-							<div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+							<div
+								className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+								role="alert"
+							>
 								{error}
 							</div>
 						)}
@@ -102,7 +149,7 @@ function Login() {
 								disabled={isLoading}
 								className="w-full text-white bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800 disabled:opacity-50 disabled:cursor-not-allowed"
 							>
-								{isLoading ? 'Signing in...' : 'Login'}
+								{isLoading ? "Signing in..." : "Login"}
 							</button>
 						</form>
 					</div>

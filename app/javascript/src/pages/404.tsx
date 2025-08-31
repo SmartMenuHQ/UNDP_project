@@ -1,7 +1,13 @@
 import { RouteObject } from "react-router";
-import { Link } from "react-router"; // Optional if using React Router
+import { Link } from "react-router";
+import { useAuth } from "../contexts/AuthContext";
+import { getHomeRoute, getHomeRouteName } from "../utils/navigation";
 
 const NotFoundPage = () => {
+	const { user } = useAuth();
+	const homeRoute = getHomeRoute(user);
+	const homeRouteName = getHomeRouteName(user);
+
 	return (
 		<section className="h-screen justify-center flex items-center">
 			<div className="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
@@ -21,10 +27,10 @@ const NotFoundPage = () => {
 						Sorry, we can't find that page. You'll find lots to explore on the homepage.
 					</p>
 					<Link
-						to="/app"
+						to={homeRoute}
 						className="inline-flex text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:focus:ring-primary-900 my-4"
 					>
-						Back to Homepage
+						Back to {homeRouteName}
 					</Link>
 				</div>
 			</div>
