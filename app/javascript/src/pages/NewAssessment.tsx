@@ -95,7 +95,7 @@ export default function NewAssessment() {
 			
 			// Navigate back to assessments list after a short delay
 			setTimeout(() => {
-				navigate('/app');
+				navigate('/app/assessments');
 			}, 1500);
 		} catch (err) {
 			console.error('Error creating assessment:', err);
@@ -106,7 +106,7 @@ export default function NewAssessment() {
 	};
 
 	const handleCancel = () => {
-		navigate('/app');
+		navigate(-1);
 	};
 
 	return (

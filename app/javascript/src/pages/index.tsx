@@ -22,6 +22,7 @@ import { Plus, Download, Filter, ArrowUpDown, FileText, Calendar, Eye, Edit, Tra
 import { RouteObject, useNavigate } from "react-router";
 import DashboardLayout from "../layouts/DashboardLayout";
 import ApplicationSidebar from "../components/Sidebar/Sidebar";
+import RouteGuard from "../components/RouteGuard";
 import { useAuth } from "../contexts/AuthContext";
 import { fetchAssessments } from "../api/assessments";
 
@@ -47,6 +48,12 @@ export default function Homepage() {
 
 	useEffect(() => {
 		const loadAssessments = async () => {
+			// Only load data if user is admin to prevent API errors before redirect
+			if (!user?.user?.admin) {
+				setLoading(false);
+				return;
+			}
+
 			try {
 				const data = await fetchAssessments();
 				setAssessments(data);
@@ -59,26 +66,37 @@ export default function Homepage() {
 		};
 
 		loadAssessments();
-	}, []);
+	}, [user]);
 
 	const handleNewAssessment = () => {
 		navigate('/app/assessments/new');
 	};
 
-	const handleSignOut = () => {
-		logout();
-		navigate('/app/login');
+	const handleSignOut = async () => {
+		try {
+			await logout();
+			// Navigation is handled by the logout function itself
+		} catch (error) {
+			console.error("Logout error:", error);
+			// Force navigation even if logout fails
+			window.location.href = '/app/login';
+		}
 	};
 
 	const handleEditAssessment = (assessmentId: number) => {
 		navigate(`/app/assessments/${assessmentId}/sections`);
 	};
 
+	const handlePreviewAssessment = (assessmentId: number) => {
+		navigate(`/app/assessments/${assessmentId}/preview`);
+	};
+
 	return (
-		<DashboardLayout>
-			<DashboardLayout.Sidebar>
-				<ApplicationSidebar />
-			</DashboardLayout.Sidebar>
+		<RouteGuard requireAdmin={true}>
+			<DashboardLayout>
+				<DashboardLayout.Sidebar>
+					<ApplicationSidebar />
+				</DashboardLayout.Sidebar>
 
 			<DashboardLayout.Content>
 				{/* Header */}
@@ -119,23 +137,23 @@ export default function Homepage() {
 					{/* Action Cards Section */}
 					<div className="flex gap-6">
 						{/* New Assessment Card */}
-						<Card className="w-72 border-2 border-dashed border-purple-300 hover:border-purple-400 transition-colors cursor-pointer shadow-none" onClick={handleNewAssessment}>
+						<Card className="w-72 border-2 border-dashed border-blue-300 hover:border-blue-400 transition-colors cursor-pointer shadow-none" onClick={handleNewAssessment}>
 							<div className="flex flex-col items-center justify-center py-6 text-center">
-								<div className="w-12 h-12 bg-purple-200 rounded-lg flex items-center justify-center mb-3">
-									<Plus className="w-6 h-6 text-purple-700" />
+								<div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
+									<Plus className="w-6 h-6 text-blue-600" />
 								</div>
-								<h3 className="text-lg font-semibold text-purple-700 mb-1">New assessment</h3>
+								<h3 className="text-lg font-semibold text-blue-700 mb-1">New assessment</h3>
 								<p className="text-sm text-gray-500">Start with a blank assessment</p>
 							</div>
 						</Card>
 
 						{/* Import Assessment Card */}
-						<Card className="w-72 border-2 border-dashed border-orange-300 hover:border-orange-400 transition-colors cursor-pointer shadow-none">
+						<Card className="w-72 border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors cursor-pointer shadow-none">
 							<div className="flex flex-col items-center justify-center py-6 text-center">
-								<div className="w-12 h-12 bg-orange-200 rounded-lg flex items-center justify-center mb-3">
-									<Download className="w-6 h-6 text-orange-700" />
+								<div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-3">
+									<Download className="w-6 h-6 text-gray-600" />
 								</div>
-								<h3 className="text-lg font-semibold text-orange-700 mb-1">Import assessment</h3>
+								<h3 className="text-lg font-semibold text-gray-700 mb-1">Import assessment</h3>
 								<p className="text-sm text-gray-500">csv, xls, pdf & more</p>
 							</div>
 						</Card>
@@ -156,78 +174,78 @@ export default function Homepage() {
 					</div>
 
 					{/* Assessments Table */}
-					<div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+					<div className="bg-white rounded-lg border border-gray-200 shadow-none overflow-hidden">
 						<Table>
 							<TableHead>
-								<TableRow className="bg-gray-50 border-b border-gray-200">
-									<TableHeadCell className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+								<TableRow className="bg-gray-50">
+									<TableHeadCell className="px-4 py-3 text-left text-sm font-medium text-gray-700">
 										<div className="flex items-center space-x-3">
 											<input type="checkbox" className="rounded border-gray-300" />
-											<span>Assessment name</span>
+											<span>Assessment</span>
 										</div>
 									</TableHeadCell>
-									<TableHeadCell className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+									<TableHeadCell className="px-4 py-3 text-left text-sm font-medium text-gray-700">
 										Owner
 									</TableHeadCell>
-									<TableHeadCell className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+									<TableHeadCell className="px-4 py-3 text-left text-sm font-medium text-gray-700">
 										Status
 									</TableHeadCell>
-									<TableHeadCell className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+									<TableHeadCell className="px-4 py-3 text-left text-sm font-medium text-gray-700">
 										Created
 									</TableHeadCell>
-									<TableHeadCell className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-										Responses
+									<TableHeadCell className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+										Details
 									</TableHeadCell>
-									<TableHeadCell className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-										<span className="sr-only">Actions</span>
+									<TableHeadCell className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+										Actions
 									</TableHeadCell>
 								</TableRow>
 							</TableHead>
 							<TableBody>
 								{loading ? (
 									<TableRow>
-										<TableCell colSpan={6} className="px-6 py-8 text-center">
+										<TableCell colSpan={6} className="px-4 py-8 text-center">
 											<div className="flex items-center justify-center">
-												<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600 mr-3"></div>
+												<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
 												Loading assessments...
 											</div>
 										</TableCell>
 									</TableRow>
 								) : error ? (
 									<TableRow>
-										<TableCell colSpan={6} className="px-6 py-8 text-center text-red-600">
+										<TableCell colSpan={6} className="px-4 py-8 text-center text-red-600">
 											{error}
 										</TableCell>
 									</TableRow>
 								) : assessments.length === 0 ? (
 									<TableRow>
-										<TableCell colSpan={6} className="px-6 py-8 text-center text-gray-500">
+										<TableCell colSpan={6} className="px-4 py-8 text-center text-gray-500">
 											No assessments found. Create your first assessment to get started.
 										</TableCell>
 									</TableRow>
 								) : (
 									assessments.map((assessment, index) => (
-										<TableRow key={assessment.id} className={`${index !== assessments.length - 1 ? 'border-b border-gray-200' : ''} hover:bg-gray-50 transition-colors duration-150`}>
-											<TableCell className="px-6 py-4">
+										<TableRow key={assessment.id} className="hover:bg-gray-50 transition-colors border-b border-gray-100">
+											<TableCell className="px-4 py-4">
 												<div className="flex items-center space-x-3">
 													<input type="checkbox" className="rounded border-gray-300" />
 													<div className="flex items-center space-x-3">
-														<div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-															<FileText className="w-4 h-4 text-gray-600" />
+														<div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+															<FileText className="w-4 h-4 text-blue-600" />
 														</div>
 														<span className="font-medium text-gray-900">{assessment.title}</span>
 													</div>
 												</div>
 											</TableCell>
-											<TableCell className="px-6 py-4">
+											<TableCell className="px-4 py-4">
 												<div className="flex items-center space-x-2">
-													<div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+													<div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
 														{user?.first_name?.charAt(0) || 'U'}
 													</div>
-													<span className="text-gray-900">{user?.display_name || user?.full_name || 'Unknown User'}</span>
+													<span className="text-gray-700">{user?.display_name || user?.full_name || 'Unknown User'}</span>
 												</div>
 											</TableCell>
-											<TableCell className="px-6 py-4">
+											<TableCell className="px-4 py-4">
 												<span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
 													assessment.active 
 														? 'bg-green-100 text-green-800' 
@@ -236,18 +254,24 @@ export default function Homepage() {
 													{assessment.active ? 'Active' : 'Draft'}
 												</span>
 											</TableCell>
-											<TableCell className="px-6 py-4 text-gray-500">
+											<TableCell className="px-4 py-4 text-gray-500">
 												<div className="flex items-center space-x-1">
 													<Calendar className="w-4 h-4" />
 													<span>{new Date(assessment.created_at).toLocaleDateString()}</span>
 												</div>
 											</TableCell>
-											<TableCell className="px-6 py-4 text-gray-500">
-												{assessment.sections_count} sections, {assessment.questions_count} questions
+											<TableCell className="px-4 py-4 text-gray-500">
+												<div className="text-sm">
+													<span className="font-medium text-gray-700">{assessment.sections_count}</span> sections, <span className="font-medium text-gray-700">{assessment.questions_count}</span> questions
+												</div>
 											</TableCell>
-											<TableCell className="px-6 py-4">
+											<TableCell className="px-4 py-4">
 												<div className="flex items-center space-x-2">
-													<button className="p-1.5 rounded-md hover:bg-blue-50 transition-colors group cursor-pointer">
+													<button 
+														onClick={() => handlePreviewAssessment(assessment.id)}
+														className="p-1.5 rounded-md hover:bg-blue-50 transition-colors group cursor-pointer"
+														title="Preview assessment"
+													>
 														<Eye className="w-4 h-4 text-gray-600 group-hover:text-blue-600 cursor-pointer" />
 													</button>
 													<button 
@@ -270,6 +294,7 @@ export default function Homepage() {
 				</div>
 			</DashboardLayout.Content>
 		</DashboardLayout>
+		</RouteGuard>
 	);
 }
 
