@@ -8,6 +8,7 @@ import { routePath as notFoundRoute } from "@/src/pages/404";
 import ErrorBoundary from "@/src/components/ErrorBoundary";
 import { AuthProvider } from "@/src/contexts/AuthContext";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
+import AuthStateManager from "@/src/components/AuthStateManager";
 
 const rootElement = document.getElementById("react-app");
 
@@ -64,7 +65,9 @@ if (rootElement) {
 		<ThemeProvider theme={theme}>
 			<ErrorBoundary>
 				<AuthProvider>
-					<RouterProvider router={router} />
+					<AuthStateManager>
+						<RouterProvider router={router} />
+					</AuthStateManager>
 				</AuthProvider>
 			</ErrorBoundary>
 		</ThemeProvider>

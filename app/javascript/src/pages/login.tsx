@@ -31,7 +31,37 @@ function Login() {
 			// Navigation will happen via the useEffect hook
 		} catch (err) {
 			console.error('Login failed:', err);
-			setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
+			
+			// Enhanced error message handling
+			let errorMessage = 'Login failed. Please try again.';
+			
+			if (err instanceof Error) {
+				errorMessage = err.message;
+			} else if (typeof err === 'string') {
+				errorMessage = err;
+			} else if (err && typeof err === 'object') {
+				// Handle cases where err might be an object with error information
+				if ('message' in err && typeof err.message === 'string') {
+					errorMessage = err.message;
+				} else if ('error' in err && typeof err.error === 'string') {
+					errorMessage = err.error;
+				} else if ('errors' in err && Array.isArray(err.errors) && err.errors.length > 0) {
+					const firstError = err.errors[0];
+					// Handle both string errors and object errors with message property
+					if (typeof firstError === 'string') {
+						errorMessage = firstError;
+					} else if (firstError && typeof firstError === 'object' && firstError.message) {
+						errorMessage = firstError.message;
+					} else {
+						errorMessage = 'Login failed. Please check your credentials and try again.';
+					}
+				} else {
+					// Fallback for objects that don't have recognizable error properties
+					errorMessage = 'Login failed. Please check your credentials and try again.';
+				}
+			}
+			
+			setError(errorMessage);
 		} finally {
 			setIsLoading(false);
 		}

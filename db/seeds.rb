@@ -82,6 +82,53 @@ regular_users_data = [
   }
 ]
 
+# Create business users for readiness assessment
+puts "\n🏢 Creating business users..."
+business_users_data = [
+  {
+    email: "william@undp.com",
+    first_name: "William",
+    last_name: "Chen",
+    country_code: "USA",
+    language: "en"
+  },
+  {
+    email: "alex.kimani@africanexports.co.ke",
+    first_name: "Alex",
+    last_name: "Kimani",
+    country_code: "KEN",
+    language: "en"
+  },
+  {
+    email: "fatima.hassan@tradehub.ma",
+    first_name: "Fatima",
+    last_name: "Hassan",
+    country_code: "MAR",
+    language: "fr"
+  },
+  {
+    email: "carlos.mendoza@manufacturas.mx",
+    first_name: "Carlos",
+    last_name: "Mendoza",
+    country_code: "MEX",
+    language: "es"
+  },
+  {
+    email: "priya.sharma@textiles.in",
+    first_name: "Priya",
+    last_name: "Sharma",
+    country_code: "IND",
+    language: "en"
+  },
+  {
+    email: "james.okafor@agritech.ng",
+    first_name: "James",
+    last_name: "Okafor",
+    country_code: "NGA",
+    language: "en"
+  }
+]
+
 regular_users_data.each do |user_data|
   country = Country.find_by(code: user_data[:country_code])
   next unless country
@@ -102,6 +149,30 @@ regular_users_data.each do |user_data|
 
   if user.persisted?
     puts "✅ Created user: #{user.display_name} (#{user.country.name})"
+  end
+end
+
+# Create business users
+business_users_data.each do |user_data|
+  country = Country.find_by(code: user_data[:country_code])
+  next unless country
+
+  user = User.find_or_create_by(email_address: user_data[:email]) do |u|
+    u.password = "password123"
+    u.password_confirmation = "password123"
+    u.admin = false
+    u.first_name = user_data[:first_name]
+    u.last_name = user_data[:last_name]
+    u.country = country
+    u.default_language = user_data[:language]
+    u.profile_completed = true
+    u.invited_by = admin
+    u.invited_at = 2.weeks.ago
+    u.invitation_accepted_at = 1.week.ago
+  end
+
+  if user.persisted?
+    puts "✅ Created business user: #{user.display_name} (#{user.country.name})"
   end
 end
 
@@ -332,6 +403,8 @@ puts "   • #{AssessmentMarkingScheme.count} marking scheme(s)"
 puts "\n🔑 Login credentials:"
 puts "   Admin: #{admin.email_address} / password123"
 puts "   Users: john@example.com, maria@example.com, pierre@example.com, yuki@example.com / password123"
+puts "   Business Users: sarah.chen@techstart.com, alex.kimani@africanexports.co.ke, fatima.hassan@tradehub.ma / password123"
+puts "                  carlos.mendoza@manufacturas.mx, priya.sharma@textiles.in, james.okafor@agritech.ng / password123"
 
 puts "\n🌍 Country restrictions demo:"
 puts "   • Users from China (CHN) will not see the 'Regional Technology Preferences' section"
