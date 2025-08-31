@@ -74,6 +74,10 @@ export default function Homepage() {
 		navigate(`/app/assessments/${assessmentId}/sections`);
 	};
 
+	const handlePreviewAssessment = (assessmentId: number) => {
+		navigate(`/app/assessments/${assessmentId}/preview`);
+	};
+
 	return (
 		<DashboardLayout>
 			<DashboardLayout.Sidebar>
@@ -247,7 +251,11 @@ export default function Homepage() {
 											</TableCell>
 											<TableCell className="px-6 py-4">
 												<div className="flex items-center space-x-2">
-													<button className="p-1.5 rounded-md hover:bg-blue-50 transition-colors group cursor-pointer">
+													<button 
+														onClick={() => handlePreviewAssessment(assessment.id)}
+														className="p-1.5 rounded-md hover:bg-blue-50 transition-colors group cursor-pointer"
+														title="Preview assessment"
+													>
 														<Eye className="w-4 h-4 text-gray-600 group-hover:text-blue-600 cursor-pointer" />
 													</button>
 													<button 
