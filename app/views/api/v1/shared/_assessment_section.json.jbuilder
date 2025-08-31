@@ -20,6 +20,11 @@ end
 # Question counts
 json.questions_count section.assessment_questions.count
 
+# Include questions
+json.questions section.assessment_questions.ordered do |question|
+  json.partial! "api/v1/shared/assessment_question", question: question
+end
+
 # Timestamps
 if section.respond_to?(:created_at)
   json.created_at section.created_at

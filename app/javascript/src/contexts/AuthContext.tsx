@@ -111,15 +111,56 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ errors: ['Login failed'] }));
-        throw new Error(errorData.errors?.[0] || `HTTP Error: ${response.status}`);
-      }
+      const result = await response.json().catch(() => ({ 
+        status: 'error', 
+        errors: ['Unable to process login request'] 
+      }));
 
-      const result = await response.json();
+      if (!response.ok) {
+        // Handle HTTP errors with proper error message extraction
+        let errorMessage = 'Login failed';
+        
+        if (result.errors && Array.isArray(result.errors) && result.errors.length > 0) {
+          const firstError = result.errors[0];
+          // Extract message from error object structure
+          if (typeof firstError === 'string') {
+            errorMessage = firstError;
+          } else if (firstError && typeof firstError === 'object' && firstError.message) {
+            errorMessage = firstError.message;
+          } else {
+            errorMessage = 'Login failed';
+          }
+        } else if (result.error) {
+          errorMessage = typeof result.error === 'string' ? result.error : 'Login failed';
+        } else if (response.status === 401) {
+          errorMessage = 'Invalid email or password';
+        } else if (response.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else {
+          errorMessage = `Login failed (${response.status})`;
+        }
+        
+        throw new Error(errorMessage);
+      }
       
       if (result.status === 'error') {
-        throw new Error(result.errors[0] || 'Login failed');
+        let errorMessage = 'Login failed';
+        
+        if (result.errors && Array.isArray(result.errors) && result.errors.length > 0) {
+          const firstError = result.errors[0];
+          // Extract message from error object structure
+          if (typeof firstError === 'string') {
+            errorMessage = firstError;
+          } else if (firstError && typeof firstError === 'object' && firstError.message) {
+            errorMessage = firstError.message;
+          } else {
+            errorMessage = 'Login failed';
+          }
+        } else if (result.error) {
+          errorMessage = typeof result.error === 'string' ? result.error : 'Login failed';
+        }
+        
+        throw new Error(errorMessage);
       }
 
       if (result.data && result.data.session && result.data.user) {
@@ -139,7 +180,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Login error:', error);
       clearAuthData();
-      throw error;
+      // Re-throw the error with proper message handling
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        // Handle case where error might be an object or other type
+        throw new Error('An unexpected error occurred during login');
+      }
     } finally {
       setIsLoading(false);
     }

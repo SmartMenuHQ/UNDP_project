@@ -10,19 +10,37 @@ import {
 	ChevronRight, 
 	Users, 
 	Plus,
-	Zap
+	Zap,
+	FileText,
+	UserPlus,
+	BarChart3,
+	Globe,
+	Settings,
+	LogOut,
+	UserCheck,
+	Shield
 } from "lucide-react";
 import Listbox from "../Listbox/Listbox";
 import { useState } from "react";
+import { useNavigate } from "react-router";
+import { useAuth } from "../../contexts/AuthContext";
 
 const SidebarComponent = () => {
 	const [isMyAssessmentsOpen, setIsMyAssessmentsOpen] = useState(true);
 	const [isSharedOpen, setIsSharedOpen] = useState(false);
+	const [isAdminOpen, setIsAdminOpen] = useState(false);
+	const navigate = useNavigate();
+	const { logout, user } = useAuth();
 	
 	const workspaces = [
 		{ value: "ws1", label: "Workspace name" },
 		{ value: "ws2", label: "Another workspace" },
 	];
+
+	const handleLogout = () => {
+		logout();
+		navigate('/app/login');
+	};
 
 	return (
 		<Sidebar
@@ -43,14 +61,64 @@ const SidebarComponent = () => {
 				{/* Main Navigation */}
 				<SidebarItems>
 					<SidebarItemGroup>
-						<SidebarItem href="#" icon={Home} active>
-							Home
+						<SidebarItem href="/app" icon={Home}>
+							Dashboard
+						</SidebarItem>
+						<SidebarItem href="/app/assessments" icon={FileText}>
+							Assessments
+						</SidebarItem>
+						<SidebarItem href="/app/users/invite" icon={UserPlus}>
+							Invite User
 						</SidebarItem>
 						<SidebarItem href="#" icon={LayoutTemplate}>
 							Templates
 						</SidebarItem>
 					</SidebarItemGroup>
 				</SidebarItems>
+
+				{/* Admin Section */}
+				{user?.admin && (
+					<div className="mb-4">
+						<button
+							onClick={() => setIsAdminOpen(!isAdminOpen)}
+							className="flex items-center w-full text-left px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg"
+						>
+							<Shield className="w-5 h-5 mr-2 text-gray-500" />
+							<span className="flex-1">Admin</span>
+							{isAdminOpen ? (
+								<ChevronDown className="w-4 h-4 text-gray-400" />
+							) : (
+								<ChevronRight className="w-4 h-4 text-gray-400" />
+							)}
+						</button>
+						
+						{isAdminOpen && (
+							<div className="ml-7 mt-1 space-y-0.5">
+								<button 
+									onClick={() => navigate('/app/users')}
+									className="flex items-center w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+								>
+									<UserCheck className="w-4 h-4 mr-2 text-gray-500" />
+									Manage Users
+								</button>
+								<button 
+									onClick={() => navigate('/app/countries')}
+									className="flex items-center w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+								>
+									<Globe className="w-4 h-4 mr-2 text-gray-500" />
+									Countries
+								</button>
+								<button 
+									onClick={() => navigate('/app/response-sessions')}
+									className="flex items-center w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+								>
+									<BarChart3 className="w-4 h-4 mr-2 text-gray-500" />
+									Response Sessions
+								</button>
+							</div>
+						)}
+					</div>
+				)}
 
 				{/* My Assessments Section */}
 				<div className="mb-4">
@@ -128,9 +196,42 @@ const SidebarComponent = () => {
 					</SidebarItems>
 				</div>
 
-				{/* Footer */}
-				<div className="mt-auto pt-4 border-t border-gray-200">
-					<p className="text-[11px] text-gray-400 text-center">&copy; Powered by UNDP</p>
+				{/* User Section & Logout */}
+				<div className="mt-auto pt-4 border-t border-gray-200 space-y-2">
+					{/* Settings */}
+					<button 
+						onClick={() => navigate('/app/settings')}
+						className="flex items-center w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+					>
+						<Settings className="w-4 h-4 mr-2 text-gray-500" />
+						Settings
+					</button>
+
+					{/* User Info */}
+					<div className="px-3 py-2">
+						<div className="flex items-center justify-between mb-3">
+							<div>
+								<p className="text-sm text-gray-700 font-medium">{user?.display_name || user?.full_name || 'User'}</p>
+								<p className="text-xs text-gray-500">{user?.email_address}</p>
+							</div>
+							{user?.admin && (
+								<span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+									Admin
+								</span>
+							)}
+						</div>
+						
+						{/* Clean Sign Out Button */}
+						<button
+							onClick={handleLogout}
+							className="flex items-center justify-center w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-red-600 hover:border-red-300 transition-all duration-200"
+						>
+							<LogOut className="w-4 h-4 mr-2" />
+							Sign Out
+						</button>
+					</div>
+					
+					<p className="text-[11px] text-gray-400 text-center px-3 pb-2">&copy; Powered by UNDP</p>
 				</div>
 			</div>
 		</Sidebar>
