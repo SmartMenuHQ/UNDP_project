@@ -36,7 +36,7 @@ class BulkMarkingJob < ApplicationJob
     Rails.logger.info "Bulk marking job completed: #{successful} successful, #{failed} failed"
 
     # Store results in cache for status checking
-    cache_key = "bulk_marking_job_#{job_id}"
+    cache_key = "bulk_marking_job_#{Time.current.to_i}_#{session_ids.count}"
     Rails.cache.write(cache_key, {
       total: session_ids.count,
       successful: successful,

@@ -61,7 +61,7 @@ class AssessmentMarkingScheme < ApplicationRecord
                     .ordered
 
     best_score = 0
-    best_rule = nil
+    best_rule = rules.first # Use first rule as default for max possible score
 
     rules.each do |rule|
       score = rule.evaluate_response(response)
@@ -71,6 +71,7 @@ class AssessmentMarkingScheme < ApplicationRecord
       end
     end
 
+    # If no rule scored above 0, still use the first rule for max possible score
     create_response_score(response, best_rule, best_score)
   end
 

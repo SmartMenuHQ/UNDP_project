@@ -32,8 +32,12 @@
 #
 FactoryBot.define do
   factory :assessment_question do
-    association :assessment
     association :assessment_section
+
+    # Set assessment to match the assessment_section's assessment
+    after(:build) do |question, evaluator|
+      question.assessment = question.assessment_section.assessment if question.assessment_section
+    end
     text { { "en" => Faker::Lorem.sentence(word_count: 8) } }
     type { "AssessmentQuestions::RichText" }
     sub_type { nil }

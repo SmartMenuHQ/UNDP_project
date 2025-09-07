@@ -186,6 +186,11 @@ class AssessmentResponseSession < ApplicationRecord
     all_required_questions_answered?
   end
 
+  def can_be_marked?
+    # Can be marked if submitted or under review, and has responses
+    (submitted? || under_review?) && assessment_question_responses.exists?
+  end
+
   # Visibility methods using the new VisibilityResolver
   def visible_questions
     assessment.visible_questions_for_session(self)
