@@ -55,13 +55,17 @@ class ConditionalVisibilityService
     if target.is_a?(AssessmentQuestion)
       # For questions: can use questions from earlier sections or earlier in same section
       same_section_questions = target.assessment_section.assessment_questions
-                                     .where("order < ?", target.order)
+                                     .where('"order" < ?', target.order)
 
       earlier_section_questions = assessment.assessment_questions
                                             .joins(:assessment_section)
                                             .where("assessment_sections.order < ?", target.assessment_section.order)
 
-      AssessmentQuestion.where(id: same_section_questions.pluck(:id) + earlier_section_questions.pluck(:id))
+      # Combine the two queries using UNION to avoid pluck issues with joins
+      same_section_ids = same_section_questions.select(:id)
+      earlier_section_ids = earlier_section_questions.select(:id)
+
+      AssessmentQuestion.where(id: same_section_ids).or(AssessmentQuestion.where(id: earlier_section_ids))
     elsif target.is_a?(AssessmentSection)
       # For sections: can use questions from earlier sections only
       assessment.assessment_questions
@@ -85,11 +89,16 @@ class ConditionalVisibilityService
 
   # Test visibility for a specific session
   def test_visibility_for_session(session)
+    return { visible_sections: [], visible_questions: [], hidden_sections: [], hidden_questions: [] } if session.nil?
+
+    visible_questions = session.visible_questions
+    hidden_questions = assessment.assessment_questions.where.not(id: visible_questions.pluck(:id))
+
     {
       visible_sections: session.visible_sections.pluck(:id, :name),
-      visible_questions: session.visible_questions.pluck(:id, :text),
+      visible_questions: visible_questions.map { |q| [q.id, extract_question_text(q)] },
       hidden_sections: assessment.assessment_sections.where.not(id: session.visible_sections.pluck(:id)).pluck(:id, :name),
-      hidden_questions: assessment.assessment_questions.where.not(id: session.visible_questions.pluck(:id)).pluck(:id, :text),
+      hidden_questions: hidden_questions.map { |q| [q.id, extract_question_text(q)] },
     }
   end
 
@@ -105,7 +114,7 @@ class ConditionalVisibilityService
       next unless trigger_question
 
       unless trigger_question.visible_for_session?(session)
-        errors << "Question '#{question.text}' depends on '#{trigger_question.text}' which is no longer visible"
+        errors << "Question '#{extract_question_text(question)}' depends on '#{extract_question_text(trigger_question)}' which is no longer visible"
       end
     end
 
@@ -116,7 +125,7 @@ class ConditionalVisibilityService
       next unless trigger_question
 
       unless trigger_question.visible_for_session?(session)
-        errors << "Section '#{section.name}' depends on '#{trigger_question.text}' which is no longer visible"
+        errors << "Section '#{section.name}' depends on '#{extract_question_text(trigger_question)}' which is no longer visible"
       end
     end
 
@@ -132,7 +141,7 @@ class ConditionalVisibilityService
     assessment.assessment_questions.each do |question|
       nodes << {
         id: "q_#{question.id}",
-        label: question.text.truncate(50),
+        label: extract_question_text(question).truncate(50),
         type: "question",
         conditional: question.is_conditional?,
         section_id: question.assessment_section_id,
@@ -179,6 +188,14 @@ class ConditionalVisibilityService
 
   private
 
+  def extract_question_text(question)
+    if question.text.is_a?(Hash)
+      question.text["en"] || question.text.values.first || "Question"
+    else
+      question.text || "Question"
+    end
+  end
+
   def validate_target(target)
     unless target.is_a?(AssessmentQuestion) || target.is_a?(AssessmentSection)
       raise ArgumentError, "Target must be an AssessmentQuestion or AssessmentSection"
@@ -207,7 +224,7 @@ class ConditionalVisibilityService
     assessment.assessment_questions.conditional.includes(:assessment_section).each do |question|
       conditions << {
         type: "question",
-        target: question.text.truncate(50),
+        target: extract_question_text(question).truncate(50),
         target_id: question.id,
         section: question.assessment_section.name,
         description: question.condition_description,
