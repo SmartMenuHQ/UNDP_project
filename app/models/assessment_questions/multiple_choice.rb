@@ -40,6 +40,19 @@ module AssessmentQuestions
     # Set default sub_type if not specified
     after_initialize :set_default_sub_type, if: :new_record?
 
+    # Override to extract selected option IDs from response
+    def extract_response_value(response)
+      # For choice questions, return the selected option IDs
+      # This is handled differently since options are in a separate table
+      if response.respond_to?(:selected_options)
+        response.selected_options.pluck(:assessment_question_option_id)
+      elsif response.respond_to?(:response_value)
+        response.response_value
+      else
+        super
+      end
+    end
+
     private
 
     def options_count_validation

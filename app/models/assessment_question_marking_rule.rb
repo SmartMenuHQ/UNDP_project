@@ -435,39 +435,57 @@ class AssessmentQuestionMarkingRule < ApplicationRecord
 
   # Helper methods for value extraction and parsing
   def extract_numeric_value(response)
-    case response.assessment_question.type
-    when "AssessmentQuestions::RangeType"
-      response.value&.dig("number") || response.value&.dig("rating")
-    else
-      response.value&.dig("number")
-    end
+    # Ensure we have the correct STI subclass
+    question = response.assessment_question
+    question = question.becomes(question.type.constantize) if question.class == AssessmentQuestion
+
+    # Delegate to question type, then convert to numeric
+    value = question.extract_response_value(response)
+    value.is_a?(Numeric) ? value : value.to_f
   end
 
   def extract_text_value(response)
-    case response.assessment_question.type
-    when "AssessmentQuestions::RichText"
-      response.value&.dig("text")
-    else
-      response.value&.dig("text") || response.value
-    end
+    # Ensure we have the correct STI subclass
+    question = response.assessment_question
+    question = question.becomes(question.type.constantize) if question.class == AssessmentQuestion
+
+    # Delegate to question type, then convert to string
+    value = question.extract_response_value(response)
+    value.is_a?(String) ? value : value.to_s
   end
 
   def parse_date_value(response)
-    date_str = response.value&.dig("date")
-    parse_date(date_str) if date_str
+    # Ensure we have the correct STI subclass
+    question = response.assessment_question
+    question = question.becomes(question.type.constantize) if question.class == AssessmentQuestion
+
+    # Delegate to question type to get the date value
+    date_value = question.extract_response_value(response)
+    parse_date(date_value) if date_value
   end
 
   def parse_date_range_value(response)
-    start_date = parse_date(response.value&.dig("start_date"))
-    end_date = parse_date(response.value&.dig("end_date"))
+    # For date ranges, we might need to handle this differently
+    # depending on how the question type stores range data
+    if response.value.is_a?(Hash)
+      start_date = parse_date(response.value["start_date"] || response.value[:start_date])
+      end_date = parse_date(response.value["end_date"] || response.value[:end_date])
 
-    return nil unless start_date && end_date
-    { start: start_date, end: end_date }
+      return nil unless start_date && end_date
+      { start: start_date, end: end_date }
+    else
+      nil
+    end
   end
 
   def parse_time_value(response)
-    time_str = response.value&.dig("time")
-    parse_time(time_str) if time_str
+    # Ensure we have the correct STI subclass
+    question = response.assessment_question
+    question = question.becomes(question.type.constantize) if question.class == AssessmentQuestion
+
+    # Similar to date, but for time values
+    time_value = question.extract_response_value(response)
+    parse_time(time_value) if time_value
   end
 
   def parse_date(date_str)

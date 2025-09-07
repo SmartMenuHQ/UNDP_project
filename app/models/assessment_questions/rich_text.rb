@@ -77,6 +77,14 @@ module AssessmentQuestions
     # Set default sub_type if not specified
     after_initialize :set_default_sub_type, if: :new_record?
 
+    # Override to extract text value from response
+    def extract_response_value(response)
+      return response.value unless response.value.is_a?(Hash)
+
+      # For text questions, prioritize text field
+      response.value["text"] || response.value[:text] || super
+    end
+
     private
 
     def set_default_sub_type

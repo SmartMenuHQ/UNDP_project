@@ -97,6 +97,18 @@ module AssessmentQuestions
       meta_data&.dig("step_value") || 1
     end
 
+    # Override to extract numeric value from response
+    def extract_response_value(response)
+      return response.value unless response.value.is_a?(Hash)
+
+      # For range/numeric questions, try different numeric field names
+      response.value["number"] || response.value[:number] ||
+      response.value["rating"] || response.value[:rating] ||
+      response.value["range"] || response.value[:range] ||
+      response.value["value"] || response.value[:value] ||
+      super
+    end
+
     private
 
     def set_default_sub_type

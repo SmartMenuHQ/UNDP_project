@@ -27,6 +27,23 @@ module AssessmentQuestions
 
     after_create :create_boolean_options
 
+    # Override to extract boolean value from response
+    def extract_response_value(response)
+      # For boolean questions, extract the boolean value or selected option
+      if response.respond_to?(:selected_options) && response.selected_options.any?
+        # If using options (Yes/No options), return the option ID
+        response.selected_options.first&.assessment_question_option_id
+      elsif response.value.is_a?(Hash)
+        # Try different boolean field names
+        response.value["boolean"] || response.value[:boolean] ||
+        response.value["value"] || response.value[:value] ||
+        response.value["checked"] || response.value[:checked] ||
+        super
+      else
+        response.value
+      end
+    end
+
     private
 
     def create_boolean_options
