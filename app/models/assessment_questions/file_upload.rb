@@ -251,6 +251,19 @@ module AssessmentQuestions
       self.max_file_size = 20.megabytes
     end
 
+    # Override to extract file information from response
+    def extract_response_value(response)
+      return response.value unless response.value.is_a?(Hash)
+
+      # For file upload questions, extract file-related information
+      response.value["file"] || response.value[:file] ||
+      response.value["filename"] || response.value[:filename] ||
+      response.value["files"] || response.value[:files] ||
+      super
+    end
+
+    private
+
     def configure_for_all_types
       self.allowed_data_types = self.class.common_file_types[:all]
       self.max_file_size = DEFAULT_MAX_FILE_SIZE

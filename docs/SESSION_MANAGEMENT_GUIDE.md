@@ -67,11 +67,18 @@ All business session endpoints are under:
 ```
 
 ### Authentication
-All endpoints require user authentication:
+All endpoints require user authentication with a completed profile:
 ```http
 Authorization: Bearer {user_token}
 Content-Type: application/json
 ```
+
+**Important**: Users must have a completed profile before accessing the business API. This includes:
+- First name and last name
+- Country selection
+- Profile completion flag set to `true`
+
+If the profile is incomplete, the API will return a 422 error with the message "Profile must be completed before accessing the API".
 
 ## Complete Session Flow
 
@@ -82,46 +89,33 @@ Content-Type: application/json
 POST /api/v1/business/assessments/123/response-sessions
 ```
 
-```json
-{
-  "response_session": {
-    "respondent_name": "John Smith",
-    "metadata": {
-      "user_agent": "Mozilla/5.0...",
-      "ip_address": "192.168.1.100",
-      "referrer": "https://company.com/assessments"
-    }
-  }
-}
-```
+**Note**: The business API automatically creates sessions for the authenticated user. No request body is required - the session is created using `AssessmentResponseSession.create_for_user(current_user, assessment)`.
 
 #### Response
 ```json
 {
+  "status": "ok",
   "data": {
     "response_session": {
       "id": 456,
-      "assessment_id": 123,
-      "user_id": 789,
-      "respondent_name": "John Smith",
       "state": "draft",
-      "progress_percentage": 0.0,
-      "total_questions": 25,
-      "answered_questions": 0,
-      "required_questions": 18,
-      "answered_required_questions": 0,
-      "created_at": "2024-01-15T10:00:00Z",
-      "updated_at": "2024-01-15T10:00:00Z",
-      "metadata": {
-        "user_agent": "Mozilla/5.0...",
-        "ip_address": "192.168.1.100",
-        "referrer": "https://company.com/assessments"
+      "respondent_name": "John Smith",
+      "started_at": null,
+      "completed_at": null,
+      "submitted_at": null,
+      "marked_at": null,
+      "total_score": null,
+      "max_possible_score": null,
+      "grade": null,
+      "feedback": null,
+      "metadata": {},
+      "assessment": {
+        "id": 123,
+        "title": "Business Assessment"
       }
     }
   },
-  "meta": {
-    "message": "Response session created successfully"
-  }
+  "notes": ["Response session created successfully"]
 }
 ```
 
@@ -135,22 +129,35 @@ PATCH /api/v1/business/assessments/123/response-sessions/456/start
 #### Response
 ```json
 {
+  "status": "ok",
   "data": {
     "response_session": {
       "id": 456,
       "state": "started",
+      "respondent_name": "John Smith",
       "started_at": "2024-01-15T10:05:00Z",
-      "progress_percentage": 0.0
+      "completed_at": null,
+      "submitted_at": null,
+      "marked_at": null,
+      "total_score": null,
+      "max_possible_score": null,
+      "grade": null,
+      "feedback": null,
+      "metadata": {},
+      "assessment": {
+        "id": 123,
+        "title": "Business Assessment"
+      }
+    },
+    "meta": {
+      "first_section_id": 101,
+      "links": {
+        "show_section": "/api/v1/business/assessments/123/response-sessions/456/sections/101",
+        "submit_section": "/api/v1/business/assessments/123/response-sessions/456/sections/101/submit"
+      }
     }
   },
-  "meta": {
-    "first_section_id": 101,
-    "links": {
-      "show_section": "/api/v1/business/assessments/123/response-sessions/456/sections/101",
-      "submit_section": "/api/v1/business/assessments/123/response-sessions/456/sections/101/submit"
-    },
-    "message": "Session started successfully; first visible section provided in meta"
-  }
+  "notes": ["Session started successfully; first visible section provided in meta"]
 }
 ```
 
@@ -164,72 +171,129 @@ GET /api/v1/business/assessments/123/response-sessions/456/sections/101
 #### Response
 ```json
 {
+  "status": "ok",
   "data": {
     "section": {
       "id": 101,
       "name": "Basic Information",
-      "description": "Please provide your basic business information",
       "order": 1,
+      "metadata": {
+        "description": "Please provide your basic business information",
+        "instructions": "Complete all required fields marked with an asterisk (*)"
+      },
       "is_conditional": false,
-      "instructions": "Complete all required fields marked with an asterisk (*)"
+      "has_country_restrictions": false,
+      "questions_count": 2,
+      "created_at": "2024-01-15T09:00:00Z",
+      "updated_at": "2024-01-15T09:00:00Z"
     },
     "questions": [
       {
         "id": 201,
-        "text": {
-          "en": "What is your business name?",
-          "es": "¿Cuál es el nombre de su empresa?"
-        },
+        "text": "What is your business name?",
         "type": "AssessmentQuestions::RichText",
-        "is_required": true,
+        "question_type": "AssessmentQuestions::RichText",
+        "question_type_name": "Rich Text",
+        "sub_type": "short_text",
         "order": 1,
-        "validation_rule_set": {
-          "min_length": 2,
-          "max_length": 100
+        "is_required": true,
+        "active": true,
+        "meta_data": {
+          "validation_rule_set": {
+            "min_length": 2,
+            "max_length": 100
+          },
+          "help_text": {
+            "en": "Enter the legal name of your business"
+          }
         },
-        "help_text": {
-          "en": "Enter the legal name of your business"
-        }
+        "is_conditional": false,
+        "has_country_restrictions": false,
+        "options": [],
+        "section": {
+          "id": 101,
+          "name": "Basic Information"
+        },
+        "created_at": "2024-01-15T09:00:00Z",
+        "updated_at": "2024-01-15T09:00:00Z"
       },
       {
         "id": 202,
-        "text": {
-          "en": "What type of business are you?",
-          "es": "¿Qué tipo de negocio es?"
-        },
+        "text": "What type of business are you?",
         "type": "AssessmentQuestions::Radio",
-        "is_required": true,
+        "question_type": "AssessmentQuestions::Radio",
+        "question_type_name": "Radio",
+        "sub_type": "radio_buttons",
         "order": 2,
+        "is_required": true,
+        "active": true,
+        "meta_data": {},
+        "is_conditional": false,
+        "has_country_restrictions": false,
         "options": [
           {
             "id": 301,
-            "text": {"en": "Sole Proprietorship", "es": "Propietario único"},
-            "order": 1
+            "text": "Sole Proprietorship",
+            "order": 1,
+            "is_correct_answer": false,
+            "points": 0,
+            "has_assigned_points": false,
+            "metadata": {},
+            "created_at": "2024-01-15T09:00:00Z",
+            "updated_at": "2024-01-15T09:00:00Z"
           },
           {
             "id": 302,
-            "text": {"en": "Partnership", "es": "Sociedad"},
-            "order": 2
+            "text": "Partnership",
+            "order": 2,
+            "is_correct_answer": false,
+            "points": 0,
+            "has_assigned_points": false,
+            "metadata": {},
+            "created_at": "2024-01-15T09:00:00Z",
+            "updated_at": "2024-01-15T09:00:00Z"
           },
           {
             "id": 303,
-            "text": {"en": "Corporation", "es": "Corporación"},
-            "order": 3
+            "text": "Corporation",
+            "order": 3,
+            "is_correct_answer": false,
+            "points": 0,
+            "has_assigned_points": false,
+            "metadata": {},
+            "created_at": "2024-01-15T09:00:00Z",
+            "updated_at": "2024-01-15T09:00:00Z"
           },
           {
             "id": 304,
-            "text": {"en": "LLC", "es": "LLC"},
-            "order": 4
+            "text": "LLC",
+            "order": 4,
+            "is_correct_answer": false,
+            "points": 0,
+            "has_assigned_points": false,
+            "metadata": {},
+            "created_at": "2024-01-15T09:00:00Z",
+            "updated_at": "2024-01-15T09:00:00Z"
           }
-        ]
+        ],
+        "section": {
+          "id": 101,
+          "name": "Basic Information"
+        },
+        "created_at": "2024-01-15T09:00:00Z",
+        "updated_at": "2024-01-15T09:00:00Z"
       }
     ]
   },
-  "meta": {
-    "message": "Section and questions fetched successfully"
-  }
+  "notes": ["Section and questions fetched successfully"]
 }
 ```
+
+**Important Notes about Response Structure**:
+- Section `description` and `instructions` are stored in the `metadata` field, not as direct properties
+- Question `text` returns the localized text for the current user's locale
+- Question validation rules are stored in `meta_data.validation_rule_set`
+- All responses follow the standard API format with `status`, `data`, and `notes` fields
 
 ### Step 4: Submit Section Responses
 
@@ -258,45 +322,72 @@ PATCH /api/v1/business/assessments/123/response-sessions/456/sections/101/submit
 #### Response - Navigation to Next Section
 ```json
 {
+  "status": "ok",
   "data": {
     "response_session": {
       "id": 456,
       "state": "in_progress",
-      "progress_percentage": 20.0,
-      "answered_questions": 2,
-      "answered_required_questions": 2
+      "respondent_name": "John Smith",
+      "started_at": "2024-01-15T10:05:00Z",
+      "completed_at": null,
+      "submitted_at": null,
+      "marked_at": null,
+      "total_score": null,
+      "max_possible_score": null,
+      "grade": null,
+      "feedback": null,
+      "metadata": {},
+      "assessment": {
+        "id": 123,
+        "title": "Business Assessment"
+      }
+    },
+    "meta": {
+      "next_section_id": 102,
+      "previous_section_id": null,
+      "links": {
+        "show_next_section": "/api/v1/business/assessments/123/response-sessions/456/sections/102",
+        "show_previous_section": null,
+        "submit_section": "/api/v1/business/assessments/123/response-sessions/456/sections/101/submit"
+      }
     }
   },
-  "meta": {
-    "next_section_id": 102,
-    "previous_section_id": null,
-    "links": {
-      "show_next_section": "/api/v1/business/assessments/123/response-sessions/456/sections/102",
-      "show_previous_section": null,
-      "submit_section": "/api/v1/business/assessments/123/response-sessions/456/sections/101/submit"
-    },
-    "message": "Section submitted; navigation meta returned"
-  }
+  "notes": ["Section submitted; navigation meta returned"]
 }
 ```
 
 #### Response - Missing Required Fields
 ```json
 {
+  "status": "ok",
   "data": {
     "response_session": {
       "id": 456,
-      "state": "in_progress"
+      "state": "in_progress",
+      "respondent_name": "John Smith",
+      "started_at": "2024-01-15T10:05:00Z",
+      "completed_at": null,
+      "submitted_at": null,
+      "marked_at": null,
+      "total_score": null,
+      "max_possible_score": null,
+      "grade": null,
+      "feedback": null,
+      "metadata": {},
+      "assessment": {
+        "id": 123,
+        "title": "Business Assessment"
+      }
+    },
+    "meta": {
+      "section_id": 101,
+      "missing_required_question_ids": [201],
+      "links": {
+        "show_section": "/api/v1/business/assessments/123/response-sessions/456/sections/101"
+      }
     }
   },
-  "meta": {
-    "section_id": 101,
-    "missing_required_question_ids": [201],
-    "links": {
-      "show_section": "/api/v1/business/assessments/123/response-sessions/456/sections/101"
-    },
-    "message": "Section has missing required responses"
-  }
+  "notes": ["Section has missing required responses"]
 }
 ```
 
@@ -312,32 +403,57 @@ If section 102 is conditional and becomes visible based on the Corporation selec
 
 ```json
 {
+  "status": "ok",
   "data": {
     "section": {
       "id": 102,
       "name": "Corporate Governance",
-      "description": "Questions about your corporate structure",
+      "order": 2,
+      "metadata": {
+        "description": "Questions about your corporate structure"
+      },
       "is_conditional": true,
       "visibility_conditions": {
         "trigger_question_id": 202,
-        "description": "Shown when business type is Corporation"
-      }
+        "trigger_response_type": "option",
+        "trigger_values": ["303"],
+        "operator": "contains"
+      },
+      "has_country_restrictions": false,
+      "questions_count": 1,
+      "created_at": "2024-01-15T09:00:00Z",
+      "updated_at": "2024-01-15T09:00:00Z"
     },
     "questions": [
       {
         "id": 203,
-        "text": {
-          "en": "How many board members do you have?"
-        },
+        "text": "How many board members do you have?",
         "type": "AssessmentQuestions::RangeType",
+        "question_type": "AssessmentQuestions::RangeType",
+        "question_type_name": "Range Type",
+        "sub_type": "number_input",
+        "order": 1,
         "is_required": true,
-        "validation_rule_set": {
-          "min_value": 1,
-          "max_value": 50
-        }
+        "active": true,
+        "meta_data": {
+          "validation_rule_set": {
+            "min_value": 1,
+            "max_value": 50
+          }
+        },
+        "is_conditional": false,
+        "has_country_restrictions": false,
+        "options": [],
+        "section": {
+          "id": 102,
+          "name": "Corporate Governance"
+        },
+        "created_at": "2024-01-15T09:00:00Z",
+        "updated_at": "2024-01-15T09:00:00Z"
       }
     ]
-  }
+  },
+  "notes": ["Section and questions fetched successfully"]
 }
 ```
 
@@ -353,28 +469,36 @@ PATCH /api/v1/business/assessments/123/response-sessions/456/sections/105/submit
 #### Response - Assessment Completed
 ```json
 {
+  "status": "ok",
   "data": {
     "response_session": {
       "id": 456,
       "state": "completed",
-      "progress_percentage": 100.0,
+      "respondent_name": "John Smith",
+      "started_at": "2024-01-15T10:05:00Z",
       "completed_at": "2024-01-15T11:30:00Z",
-      "total_questions": 25,
-      "answered_questions": 25,
-      "required_questions": 18,
-      "answered_required_questions": 18
+      "submitted_at": null,
+      "marked_at": null,
+      "total_score": null,
+      "max_possible_score": null,
+      "grade": null,
+      "feedback": null,
+      "metadata": {},
+      "assessment": {
+        "id": 123,
+        "title": "Business Assessment"
+      }
+    },
+    "meta": {
+      "next_section_id": null,
+      "previous_section_id": 104,
+      "links": {
+        "show_previous_section": "/api/v1/business/assessments/123/response-sessions/456/sections/104",
+        "submit_section": "/api/v1/business/assessments/123/response-sessions/456/sections/105/submit"
+      }
     }
   },
-  "meta": {
-    "next_section_id": null,
-    "previous_section_id": 104,
-    "assessment_completed": true,
-    "links": {
-      "show_previous_section": "/api/v1/business/assessments/123/response-sessions/456/sections/104",
-      "session_summary": "/api/v1/business/assessments/123/response-sessions/456"
-    },
-    "message": "Assessment completed successfully"
-  }
+  "notes": ["Assessment completed successfully"]
 }
 ```
 
@@ -387,52 +511,28 @@ GET /api/v1/business/assessments/123/response-sessions/456
 
 ```json
 {
+  "status": "ok",
   "data": {
     "response_session": {
       "id": 456,
       "state": "in_progress",
-      "progress_percentage": 60.0,
-      "current_section_id": 103,
-      "sections_completed": [101, 102],
-      "sections_available": [101, 102, 103, 105],
-      "sections_locked": [104, 106]
+      "respondent_name": "John Smith",
+      "started_at": "2024-01-15T10:05:00Z",
+      "completed_at": null,
+      "submitted_at": null,
+      "marked_at": null,
+      "total_score": null,
+      "max_possible_score": null,
+      "grade": null,
+      "feedback": null,
+      "metadata": {},
+      "assessment": {
+        "id": 123,
+        "title": "Business Assessment"
+      }
     }
   },
-  "meta": {
-    "navigation": {
-      "current_section": {
-        "id": 103,
-        "name": "Financial Information",
-        "link": "/api/v1/business/assessments/123/response-sessions/456/sections/103"
-      },
-      "available_sections": [
-        {
-          "id": 101,
-          "name": "Basic Information",
-          "status": "completed",
-          "link": "/api/v1/business/assessments/123/response-sessions/456/sections/101"
-        },
-        {
-          "id": 102,
-          "name": "Corporate Governance",
-          "status": "completed",
-          "link": "/api/v1/business/assessments/123/response-sessions/456/sections/102"
-        },
-        {
-          "id": 103,
-          "name": "Financial Information",
-          "status": "current",
-          "link": "/api/v1/business/assessments/123/response-sessions/456/sections/103"
-        },
-        {
-          "id": 105,
-          "name": "Additional Details",
-          "status": "available",
-          "link": "/api/v1/business/assessments/123/response-sessions/456/sections/105"
-        }
-      ]
-    }
-  }
+  "notes": ["Response session retrieved successfully"]
 }
 ```
 
@@ -443,37 +543,45 @@ GET /api/v1/business/assessments/123/response-sessions/456/section_responses/103
 
 ```json
 {
+  "status": "ok",
   "data": {
     "section": {
       "id": 103,
-      "name": "Financial Information"
+      "name": "Financial Information",
+      "order": 3,
+      "metadata": {
+        "description": "Financial details about your business"
+      },
+      "is_conditional": false,
+      "has_country_restrictions": false,
+      "questions_count": 2,
+      "created_at": "2024-01-15T09:00:00Z",
+      "updated_at": "2024-01-15T09:00:00Z"
     },
     "responses": [
       {
         "id": 501,
-        "question_id": 204,
         "value": {
           "number": 500000
         },
-        "created_at": "2024-01-15T11:15:00Z",
-        "updated_at": "2024-01-15T11:20:00Z"
+        "metadata": {},
+        "question": {
+          "id": 204
+        }
       },
       {
         "id": 502,
-        "question_id": 205,
-        "selected_options": [
-          {
-            "id": 305,
-            "text": {"en": "Annual Revenue: $100K - $1M"}
-          }
-        ],
-        "created_at": "2024-01-15T11:18:00Z"
+        "value": {
+          "selected_option_ids": [305]
+        },
+        "metadata": {},
+        "question": {
+          "id": 205
+        }
       }
     ]
   },
-  "meta": {
-    "message": "Section responses fetched successfully"
-  }
+  "notes": ["Section responses fetched successfully"]
 }
 ```
 

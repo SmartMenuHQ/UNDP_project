@@ -178,24 +178,12 @@ module ConditionalVisibility
   end
 
   def extract_response_value(trigger_response)
-    # Handle different response value formats based on question type
-    return trigger_response.value unless trigger_response.value.is_a?(Hash)
+    # Ensure we have the correct STI subclass
+    question = trigger_response.assessment_question
+    question = question.becomes(question.type.constantize) if question.class == AssessmentQuestion
 
-    case trigger_response.assessment_question.type
-    when "AssessmentQuestions::RichText"
-      trigger_response.value["text"] || trigger_response.value[:text]
-    when "AssessmentQuestions::RangeType"
-      trigger_response.value["number"] || trigger_response.value[:number] ||
-      trigger_response.value["rating"] || trigger_response.value[:rating] ||
-      trigger_response.value["range"] || trigger_response.value[:range]
-    when "AssessmentQuestions::DateType"
-      trigger_response.value["date"] || trigger_response.value[:date]
-    else
-      # Generic fallback: try common keys
-      trigger_response.value["value"] || trigger_response.value[:value] ||
-      trigger_response.value["text"] || trigger_response.value[:text] ||
-      trigger_response.value["number"] || trigger_response.value[:number]
-    end
+    # Delegate to the question type's specific implementation
+    question.extract_response_value(trigger_response)
   end
 
   def operator_description

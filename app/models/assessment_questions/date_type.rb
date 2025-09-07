@@ -63,6 +63,17 @@ module AssessmentQuestions
     # Set default sub_type if not specified
     after_initialize :set_default_sub_type, if: :new_record?
 
+    # Override to extract date value from response
+    def extract_response_value(response)
+      return response.value unless response.value.is_a?(Hash)
+
+      # For date questions, prioritize date field
+      response.value["date"] || response.value[:date] ||
+      response.value["start_date"] || response.value[:start_date] ||
+      response.value["end_date"] || response.value[:end_date] ||
+      super
+    end
+
     private
 
     def set_default_sub_type

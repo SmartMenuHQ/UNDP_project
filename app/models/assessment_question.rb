@@ -317,6 +317,19 @@ class AssessmentQuestion < ApplicationRecord
 
   after_save :queue_translation_job, if: :should_auto_translate?
 
+  # Extract response value from a response - to be overridden by question types
+  # This is the base implementation with generic fallback logic
+  def extract_response_value(response)
+    return response.value unless response.value.is_a?(Hash)
+
+    # Generic fallback: try common keys in order of likelihood
+    response.value["value"] || response.value[:value] ||
+    response.value["text"] || response.value[:text] ||
+    response.value["number"] || response.value[:number] ||
+    response.value["date"] || response.value[:date] ||
+    response.value
+  end
+
   private
 
   def should_auto_translate?
