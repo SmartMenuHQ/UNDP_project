@@ -36,8 +36,8 @@ class AssessmentQuestionResponse < ApplicationRecord
   after_initialize :ensure_jsonb_initialized
 
   # Validations
-  validates :assessment_question_id, uniqueness: { scope: :assessment_id,
-                                                   message: "can only have one response per assessment" }
+  validates :assessment_question_id, uniqueness: { scope: :assessment_response_session_id,
+                                                   message: "can only have one response per session" }
 
   validate :validate_using_validator
 
@@ -88,13 +88,6 @@ class AssessmentQuestionResponse < ApplicationRecord
     end
   end
 
-  private
-
-  def ensure_jsonb_initialized
-    self.value ||= {}
-    self.metadata ||= {}
-  end
-
   # Marking methods
   def score_for_scheme(scheme_id)
     assessment_response_scores.find_by(assessment_marking_scheme_id: scheme_id)
@@ -107,6 +100,13 @@ class AssessmentQuestionResponse < ApplicationRecord
   def grade_response(scheme_id)
     scheme = AssessmentMarkingScheme.find(scheme_id)
     scheme.grade_response(self)
+  end
+
+  private
+
+  def ensure_jsonb_initialized
+    self.value ||= {}
+    self.metadata ||= {}
   end
 
   def set_selected_options(option_ids)

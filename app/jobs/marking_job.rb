@@ -99,7 +99,8 @@ class MarkingJob < ApplicationJob
     percentage = (earned / possible * 100).round(2)
     boundaries = scheme.settings&.dig("grade_boundaries") || {}
 
-    boundaries.each do |grade, threshold|
+    # Sort boundaries by threshold in descending order to get the highest qualifying grade
+    boundaries.sort_by { |grade, threshold| -threshold }.each do |grade, threshold|
       return grade if percentage >= threshold
     end
 
@@ -124,8 +125,7 @@ class MarkingJob < ApplicationJob
   end
 
   def should_send_notification?(session)
-    # Check if notifications are enabled for this assessment
-    session.assessment.metadata&.dig("notifications", "marking_complete") == true ||
+    # Send notification if user has an email address
     session.user&.email_address.present?
   end
 
